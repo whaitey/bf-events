@@ -1,0 +1,300 @@
+.bsf-page-banner-outer-wrapper {
+  background: var(--c-black);
+
+  .bsf-container {
+    height: 100%;
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-end;
+    flex-direction: column;
+
+    .bsf-page-banner-content {
+      flex: 1;
+      padding: var(--ps-huge) 0 var(--ps-medium);
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-end;
+      flex-direction: column;
+      gap: var(--ps-medium);
+
+      @include media-query("tablet-small") {
+        padding: var(--ps-huge) 0 var(--ps-default);
+        gap: var(--ps-default);
+      }
+
+      @include media-query("phone") {
+        padding-bottom: var(--ps-small);
+      }
+    }
+
+    .bsf-banner-text {
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-end;
+      flex-direction: column;
+      gap: var(--ps-small);
+
+      .bsf-banner-heading {
+        @extend .bsf-h1-style;
+
+        color: var(--c-white);
+      }
+
+      .bsf-page-banner-description {
+        p {
+          @extend .bsf-large-text-style;
+
+          color: var(--c-white);
+        }
+
+        * {
+          color: var(--c-white);
+        }
+      }
+    }
+
+    .bsf-logos-wrapper {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: var(--ps-default);
+
+      .bsf-logo-wrapper {
+        background: rgba(255,255,255,0.1);
+        flex: 0 0 150px;
+        height: 70px;
+        display: block;
+        aspect-ratio: 150/70;
+
+        @include media-query("tablet-small") {
+          width: 100px;
+          flex: 0 0 100px;
+          height: auto;
+        }
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center center;
+        }
+      }
+    }
+
+    .bsf-tags-addtocalendar {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: var(--ps-tiny);
+      position: relative;
+      align-self: flex-start;
+      width: auto;
+
+      @include media-query("tablet-small") { 
+        justify-content: space-between;
+      }      
+
+      @include media-query("phone") { 
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
+
+      .add-to-calendar-popup {
+        position: absolute;
+        right: 0;
+        
+        z-index: 3;
+        top: calc(100% + 5px); 
+        border: 1px solid var(--c-grey-2);
+        background: var(--c-grey-1);
+        padding: var(--ps-small);
+        border-radius: var(--br-1);
+        transition: var(--tr-1);
+        transform: scaleY(0);
+        transform-origin: center top;
+        box-shadow: 0 0 10px rgba(0,0,0, 0.1);
+        
+        &.active {
+          transform: scale(1);
+        }
+
+        @include media-query("phone") { 
+          right: auto;
+          left: 0;
+        }
+  
+        .add-to-calendar-inner {
+          display: flex;
+          flex-direction: row;
+          align-items: stretch;
+          justify-content: flex-start;
+          gap: var(--ps-tiny);
+        }
+      }
+    }
+  
+    .bsf-tag-list {
+      @extend .bsf-buttons-wrapper;
+  
+      flex-wrap: wrap;
+
+      @include media-query("tablet-small") {
+        flex-direction: column;
+      }
+  
+      .bsf-event-tag {
+        @extend .bsf-button;
+  
+        height: 100%;
+        cursor: default;
+        pointer-events: none;
+
+        @include media-query("tablet-small") {
+          height: auto;
+        }
+
+        &.bsf-stage-link {
+          pointer-events: all;
+          cursor: pointer;
+  
+          &:hover {
+            background-color: var(--c-orange);
+          }
+        }
+      }
+    }
+  }
+
+  &.bsf-single-event-banner {
+    .bsf-page-banner-description {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      row-gap: var(--ps-small);
+      
+      time {
+        @extend .bsf-xlarge-text-style;
+      }
+
+      .location {
+        @extend .bsf-large-text-style;
+      }
+    }
+  }
+}
+
+.bsf-speaker-page-banner-outer-wrapper {
+  background: var(--c-black);
+
+  .bsf-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-end;
+  }
+
+  .bsf-page-banner-content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--ps-medium);
+    padding-top: var(--ps-large);
+    margin-bottom: calc(-1 * (2 * var(--ps-medium)));
+
+    @include media-query(tablet-small) {
+      gap: var(--ps-default);
+      padding-top: var(--ps-medium);
+      margin-bottom: -62px;
+    }
+
+    @include media-query(phone) {
+      flex-direction: column;
+      align-items: flex-start;
+      padding-top: var(--ps-small);
+      gap: var(--ps-small);
+    }
+  }
+
+  .bsf-speaker-avatar {
+    flex: 0 0 322px;
+    height: 322px;
+    aspect-ratio: 1/1;
+    background: var(--c-grey-2);
+    display: block;
+    border: 2px solid var(--c-black);
+    border-radius: var(--br-1);
+
+    @include media-query(tablet-small) {
+      flex: 0 0 180px;
+      height: 180px;
+    }
+
+    @include media-query(phone) {
+      flex: 0 0 80px;
+      height: 80px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+    }
+  }
+
+  .bsf-banner-inner-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-end;
+    padding-bottom: 120px;
+    position: relative;
+
+    @include media-query(tablet-small) {
+      padding-bottom: 80px;
+      width: 100%;
+    }
+
+    @include media-query(phone) {
+      gap: var(--ps-small);
+    }
+  }
+
+  
+  .bsf-speaker-social-contacts {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: auto;
+
+    @include media-query(phone) {
+      position: static;
+    }
+  }
+
+  .bsf-banner-text {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-end;
+    gap: var(--ps-small);
+
+    .bsf-banner-heading {
+      @extend .bsf-h2-style;
+      color: var(--c-white);
+    }
+
+    .bsf-page-banner-description {
+      @extend .bsf-h4-style;
+      color: var(--c-white);
+      text-transform: none;
+    }
+  }
+}

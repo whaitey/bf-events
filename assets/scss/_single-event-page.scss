@@ -1,0 +1,72 @@
+.bsf-single-event-content-outer-wrapper {
+  padding: var(--ps-medium) 0 var(--ps-large);
+
+  @include media-query("phone") {
+    padding: var(--ps-default) 0 var(--ps-medium);
+  }
+
+  .bsf-container {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: var(--ps-large);
+
+    @include media-query("tablet-small") {
+      gap: var(--ps-default);
+    }
+  }
+
+  .bsf-single-event-speakers-wrapper {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: var(--ps-default);
+
+    .section-title {
+      @extend .bsf-h3-style;
+
+      text-transform: none;
+    }
+  }
+  
+  .bsf-single-event-content-tag-list {
+    .bsf-tag-list {
+      @extend .bsf-buttons-wrapper;
+  
+      flex-wrap: wrap;
+
+      .bsf-event-tag {
+        @extend .bsf-button;
+  
+        cursor: default;
+        pointer-events: none;
+      }
+    }
+  }
+
+  .bsf-speakers-list-wrapper {
+    --cols: 4;
+
+    @include media-query(tablet-large) {
+      --cols: 3;
+    }
+
+    @include media-query(tablet-small) {
+      --cols: 1;
+      flex-wrap: nowrap;
+      overflow: auto;
+      padding-bottom: var(--ps-default);
+      gap: var(--ps-default);
+      scroll-snap-type: x mandatory;
+
+
+      .bsf-speaker-card {
+        flex: 0 0 300px;
+        max-width: 300px;
+        scroll-snap-align: start;
+      }
+    }
+  }
+}

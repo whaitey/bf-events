@@ -1,0 +1,147 @@
+:root {
+  // colors
+  --c-indigo: #2F24A1;
+  --c-gold: #FFB20D;
+  --c-orange: #F09400;
+  --c-purple-3: #443F96;
+  --c-purple-2: #7B78B5;
+  --c-purple-1: #8E8CC0;
+  --c-green-1: #6FE2C5;
+  --c-green-2: #18D1A3;
+  --c-red: #D11E18;
+  --c-black: #0A0A0A; 
+  --c-grey-4: #252525;
+  --c-grey-3: #817F7F;
+  --c-grey-2: #D9D9D9;
+  --c-grey-1: #F2F2F2;
+  --c-white: #FFFFFF;
+
+  --c-border-light: var(--c-grey-2);
+  --c-border-dark: var(--c-black);
+  --c-text: var(--c-black);
+
+  //padding and gutter
+  --distanceUnit: 1.25rem;
+  --ps-tiny: calc(var(--distanceUnit) / 4); // 5
+  --ps-small: calc(var(--distanceUnit) / 2); // 10
+  --ps-default: var(--distanceUnit); // 20
+  --ps-medium: calc(var(--distanceUnit) * 2); // 40
+  --ps-large: calc(var(--distanceUnit) * 3); // 60
+  --ps-xlarge: calc(var(--distanceUnit) * 5); // 100
+  --ps-huge: calc(var(--distanceUnit) * 7); // 140
+
+  //container max sizes
+
+  --cs-wide: 1600px;
+  --cs-default: 1280px;
+  --cs-narrow: 800px;
+
+  //font sizes
+
+  --fs-small: 0.75rem;
+  --fs-default: 1rem;
+  --fs-large: clamp(1.063rem, 0.937rem + 0.168vw, 1.125rem); // 17-18
+  --fs-xlarge: clamp(1.125rem, 1rem + 0.3333vw, 1.25rem); // 18-20
+  --fs-h5: clamp(1.25rem, 1.125rem + 0.3333vw, 1.375rem); // 20-22
+  --fs-h4: clamp(1.375rem, 1.125rem + 0.6667vw, 1.625rem); // 22-26
+  --fs-h3: clamp(1.5rem, 1.125rem + 1vw, 1.875rem); // 24-30
+  --fs-h2: clamp(1.625rem, 1.125rem + 1.3333vw, 2.125rem); // 26-34
+  --fs-h1: clamp(1.75rem, 1rem + 2vw, 2.5rem); // 28-40
+
+  --fs-cta-large: var(--fs-large);
+  --fs-cta-default: var(--fs-default);
+  --fs-cta-small: var(--fs-small);
+
+  --fs-menu-item: var(--fs-default);
+
+  // border-radius
+
+  --br-1: 8px;
+  --br-2: 12px;
+
+  // font variables
+
+  --ff-body: 'Poppins', Helvetica, Arial, Sans-serif;
+  --ff-heading: 'Poppins', Helvetica, Arial, Sans-serif;
+
+  // transitions
+
+  --tr-1: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --tr-2: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --tr-3: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // calendar
+
+  --bsf-calendar-stage-column-width: 320px;
+  --bsf-calendar-stage-label-height: 80px;
+  --bsf-calendar-time-unit: 150px;
+  --bsf-calendar-scrollbar-height: 16px;
+  --bsf-bg-calendar-lines: repeating-linear-gradient(
+    to bottom,
+    var(--c-border-light) 0,
+    var(--c-border-light) 1px,
+    transparent 1px,
+    transparent var(--bsf-calendar-time-unit)
+  );
+
+  @include media-query(tablet-large) {
+    --bsf-calendar-stage-column-width: 45%;
+  }
+
+
+  @include media-query("phone") {
+    --bsf-calendar-stage-column-width: 90%;
+  }
+
+  @include media-query("phone-narrow") { 
+    --bsf-calendar-stage-column-width: 95%;
+  }
+}
+
+.bsf-parent-class {
+  * {
+    font-family: var(--ff-body);
+    color: var(--c-black);
+    font-size: 1rem;
+  }
+  
+  .bsf-container {
+    //max-width: var(--cs-default);
+    margin: 0 auto;
+    padding: 0 var(--ps-default);
+
+
+    @include media-query("phone") {
+      padding: 0 var(--ps-small);
+    }
+  
+    &.wide {
+      max-width: var(--cs-wide);
+    }
+  
+    &.narrow {
+      max-width: var(--cs-narrow);
+    }
+  
+    /*
+    @include media-query(desktop-wide-min) {
+      max-width: $containerdesktopwidewidth;
+    }
+  
+    @include media-query(desktop-max) {
+      padding-left: $paddingdesktop;
+      padding-right: $paddingdesktop;
+    }
+  
+    @include media-query(tablet-max) {
+      width: 100%;
+      max-width: 100%;
+    }
+  
+    @include media-query(tablet-max) {
+      padding-left: $paddingmobile;
+      padding-right: $paddingmobile;
+    }*/
+  }
+}
+

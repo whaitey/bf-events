@@ -1,0 +1,174 @@
+.standard-input-style {
+  @extend .bsf-standard-text-style;
+
+  line-height: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: 0;
+  padding: var(--ps-small) var(--ps-default);
+  margin: 0;
+  border: 2px solid var(--c-black);
+  box-shadow: none;
+  background: var(--c-white);
+  border-radius: var(--br-1);
+  width: 100%;
+
+  @include media-query("phone-narrow") {
+    padding-left: var(--ps-small);
+    padding-right: var(--ps-small);
+  }
+}
+
+.standard-select-style {
+  @extend .bsf-standard-text-style;
+
+  line-height: 1;
+  outline: 0;
+  padding: var(--ps-small) var(--ps-default);
+  margin: 0;
+  border: 2px solid var(--c-black);
+  border-radius: var(--br-1);
+  box-shadow: none;
+  background: var(--c-white) url('../images/icon-chevron-down.svg') right 20px center no-repeat;
+  background-size: 8px 8px;
+  padding-right: 40px;
+  width: 100%;
+  text-align: left;
+  
+  @include media-query("phone-narrow") {
+    padding-left: var(--ps-small);
+    padding-right: var(--ps-small);
+    background-position: right 10px center;
+  }
+
+  &.active {
+    background-image: url('../images/icon-chevron-up.svg');
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+.standard-checkbox-style {
+  display: block;
+  position: relative;
+  padding-left: 22px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-start;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  .checkmark {
+      width: 16px;
+      height: 16px;
+      background: var(--c-white);
+      display: block;
+      border: 2px solid var(--c-black);
+      transition: var(--tr-1);
+      position: absolute;
+      left: 0;
+      top: -1px;
+      cursor: pointer;
+  }
+
+  input:checked ~ .checkmark {
+    background: var(--c-indigo);
+  }
+
+  input {
+      appearance: none;
+      -webkit-appearance: none;
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+      margin: 0;
+      padding: 0;
+  }
+}
+
+.bsf-form-inputs-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--ps-small);
+
+  @include media-query("phone-narrow") {
+    gap: var(--ps-small);
+  }
+
+  ::placeholder {
+    color: var(--c-black);
+    opacity: 1; /* Firefox */
+  }
+  
+  ::-ms-input-placeholder { /* Edge 12 -18 */
+    color: var(--c-black);
+    opacity: 1;
+  }
+
+  input {
+    &[type="text"],
+    &[type="email"],
+    &[type="phone"],
+    &[type="password"] {
+      @extend .standard-input-style;
+    
+    }
+  }
+
+  .dropdown-filter-label {
+    @extend .standard-select-style;
+
+    width: 100%;
+    cursor: pointer;
+  }
+
+  label {
+    @extend .bsf-standard-text-style;
+    line-height: 1;
+  }
+
+  .input-list {
+    transform: translateY(-2px);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+
+    .input-list-inner-wrapper {
+      border: 2px solid var(--c-black);
+      border-bottom-left-radius: var(--br-1);
+      border-bottom-right-radius: var(--br-1);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      row-gap: var(--ps-tiny);
+      padding: var(--ps-default);
+    }
+  }
+  
+  .input-line {
+    &.checkbox-line {
+      @extend .standard-checkbox-style;
+  
+      border-bottom: 1px solid var(--c-grey-2);
+      padding-bottom: var(--ps-tiny);
+    
+      &:last-child {
+        border: 0;
+      }
+    }
+  
+    label {
+        cursor: pointer;
+    }
+  }
+}

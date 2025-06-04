@@ -1,0 +1,42 @@
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(15px);
+  
+
+  &.revealed {
+      animation: reveal 0.8s forwards;
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    display: none;
+    transform: scale(1.1) translate3d(0,0,0);
+  }
+  to {
+    opacity: 1;
+    display: flex;
+    transform: scale(1) translateZ(0) translate3d(0,0,0);
+  }
+}
+
+@keyframes disappear {
+  from {
+    display: flex;
+    opacity: 1;
+    transform: scale(1) translateZ(0) translate3d(0,0,0);
+  }
+  to {
+    opacity: 0;
+    display: none;
+    transform: scale(1.1) translate3d(0,0,0);
+  }
+}
+
+@keyframes reveal {
+  to {
+    transform: translate(0);
+    opacity: 1;
+  }
+}

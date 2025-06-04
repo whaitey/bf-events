@@ -1,0 +1,161 @@
+/*  ---------------------------------------------------------
+  RESPONSIVE MIXINS
+--------------------------------------------------------- */
+
+/// Responsive breakpoint manager.
+/// @access public
+/// @param {String} $breakpoint - Breakpoint
+/// usage: @include media-query(phone-max) {}
+
+/** breakpoints **/
+
+$br-phone-narrow: 360px;
+$br-phone: 600px;
+$br-tablet-small: 768px;
+$br-tablet-large: 1024px;
+$br-tablet-wide: 1200px;
+$br-desktop: 1440px;
+$br-desktop-large: 1680px;
+$br-desktop-wide: 1920px;
+
+
+@mixin media-query($breakpoint) {
+  @if $breakpoint == "phone-narrow" {
+    @media (max-width: $br-phone-narrow) {
+      @content;
+    }
+  }
+
+  @if $breakpoint == "phone" {
+    @media (max-width: $br-phone) {
+      @content;
+    }
+  }
+  
+  @if $breakpoint == "tablet-small" {
+    @media (max-width: $br-tablet-small) {
+      @content;
+    }
+  }
+  @if $breakpoint == "tablet-large" {
+    @media (max-width: $br-tablet-large) {
+      @content;
+    }
+  }
+  @if $breakpoint == "tablet-wide" {
+    @media (max-width: $br-tablet-wide) {
+      @content;
+    }
+  }
+  @if $breakpoint == "desktop" {
+    @media (max-width: $br-desktop) {
+      @content;
+    }
+  }
+  @if $breakpoint == "desktop-large" {
+    @media (max-width: $br-desktop-large) {
+      @content;
+    }
+  }
+  @if $breakpoint == "desktop-large-min" {
+    @media (min-width: calc(#{$br-desktop-large} + 1px)) {
+      @content;
+    }
+  }
+
+  @if $breakpoint == "desktop-wide" {
+    @media (max-width: $br-desktop-wide) {
+      @content;
+    }
+  }
+
+  @if $breakpoint == "desktop-wide-min" {
+    @media (min-width: calc(#{$br-desktop-wide} + 1px)) {
+      @content;
+    }
+  }
+}
+
+/* aspect ratio calculation */
+
+@mixin ar($width, $height) {
+  height: 0;
+  padding-bottom: calc(($height / $width) * 100%);
+  position: relative;
+
+  & > .ar-child {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+  }
+}
+
+/* calculating container side padding on full width elements */
+
+@mixin sidespace($direction) {
+  @if $direction == "left" {
+    padding-left: calc((100vw - var(--s-container-wide)) / 2);
+
+    @include media-query("desktop") {
+      padding-left: var(--s-padding-desktop);
+    }
+
+    @include media-query("tablet-small") {
+      padding-left: var(--s-padding-mobile);
+    }
+  }
+
+  @else if $direction == "right" {
+    padding-right: calc((100vw - var(--s-container-wide)) / 2);
+
+    @include media-query("desktop") {
+      padding-right: var(--s-padding-desktop);
+    }
+
+    @include media-query("tablet-small") {
+      padding-right: var(--s-padding-mobile);
+    }
+  }
+
+  @else if $direction == "negative-left" {
+    margin-left: calc(-1 * (100vw - var(--s-container-wide)) / 2 - var(--s-padding-desktop));
+
+    @include media-query("desktop-wide-min") {
+      margin-left: -130px;
+    }
+
+    @include media-query("desktop-large") {
+      margin-left: calc(-1 * var(--s-padding-desktop));
+    }
+
+    @include media-query("tablet-small") {
+      margin-left: calc(-1 * var(--s-padding-mobile));
+    }
+  }
+
+  @else if $direction == "negative-right" {
+    margin-right: calc(-1 * (100vw - var(--s-container-wide)) / 2 - var(--s-padding-desktop));
+
+    @include media-query("desktop-wide-min") {
+      margin-right: -130px;
+    }
+
+    @include media-query("desktop-large") {
+      margin-right: calc(-1 * var(--s-padding-desktop)); 
+    }
+
+    @include media-query("tablet-small") {
+      margin-right: calc(-1 * var(--s-padding-mobile));
+    }
+  }
+
+  @else if $direction == "pos-left" {
+    left: calc((100vw - var(--s-container-wide)) / 2);
+  }
+
+  @else if $direction == "pos-right" {
+    right: calc((100vw - var(--s-container-wide)) / 2);
+  }
+}

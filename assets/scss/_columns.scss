@@ -1,0 +1,35 @@
+.bsf-columns {
+  --cols: 3;
+  --gutter: var(--ps-default);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--gutter);
+  flex-wrap: wrap;
+  
+  &.end {
+    justify-content: flex-end;
+  }
+
+  &.center {
+    justify-content: center;
+  }
+
+  &.between {
+    justify-content: space-between;
+  }
+
+  &.wrap {
+    flex-wrap: wrap;
+  }
+
+  &.vertical-center {
+    align-items: center;
+  }
+}
+
+.bsf-column {
+  flex-basis: calc(100% / var(--cols) - var(--gutter) / var(--cols) * (var(--cols) - 1));
+  max-width: calc(100% / var(--cols) - var(--gutter) / var(--cols) * (var(--cols) - 1));
+}

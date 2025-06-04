@@ -1,0 +1,76 @@
+.bsf-speakers-list-outer-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fs-default);
+  padding-top: var(--ps-large);
+  padding-bottom: var(--ps-huge);
+
+  .bsf-clear-filters {
+    margin-top: var(--ps-default);
+  }
+
+  .bsf-speakers-list-wrapper {
+    flex: 1;
+    --cols: 4;
+    flex-wrap: wrap;
+
+    @include media-query(tablet-wide) {
+      --cols: 3;
+    }
+
+    @include media-query(tablet-large) {
+      --cols: 2;
+    }
+
+    @include media-query(tablet-small) {
+      --cols: 2;
+    }
+
+    @include media-query(phone) {
+      --cols: 1;
+    }
+
+    .bsf-buttons-wrapper {
+      flex: 1;
+      width: 100%;
+    }
+
+    .bsf-no-hits {
+      @extend .bsf-h5-style;
+
+      width: 100%;
+      text-align: center;
+      text-transform: none;
+    }
+
+    &.htmx-request {
+      opacity: 0.5;
+    }
+  }
+
+  @include media-query("tablet-small") {
+    flex-direction: column;
+    padding-top: var(--ps-default);
+    align-items: stretch;
+    gap: var(--ps-default)
+  }
+
+  .bsf-filters-button-wrapper {
+    display: none;
+
+    @include media-query("tablet-small") {
+      display: block;
+    }
+
+    .bsf-show-filters-button {
+      width: 100%;
+      flex: 1;
+    }
+  }
+}
+
+#bsf-load-more-speakers-wrapper {
+  flex: 1 1 100%;
+}

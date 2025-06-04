@@ -1,0 +1,230 @@
+.bsf-buttons-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--ps-tiny);
+  flex-wrap: wrap;
+  text-align: center;
+
+  &.center {
+    justify-content: center;
+  }
+
+  &.end {
+    justify-content: flex-end;
+  }
+}
+
+.bsf-button {
+  @extend .bsf-cta-style;
+
+  font-size: var(--fs-cta-default);
+  padding: var(--ps-small) var(--ps-default);
+  border-radius: var(--br-2);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: var(--tr-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &.indigo {
+    background: var(--c-indigo);
+    color: var(--c-white);
+
+    .label {
+      color: var(--c-white);
+    }
+
+    &:hover {
+      background: var(--c-purple-3);
+    }
+  }
+
+  &.gold {
+    background: var(--c-gold);
+    color: var(--c-black);
+
+    
+    &:hover {
+      color: var(--c-black);
+      background-color: var(--c-orange);
+    }
+  }
+
+  &.white {
+    background: var(--c-white);
+    color: var(--c-black);
+
+    &:hover {
+      background-color: var(--c-black);
+      color: var(--c-white);
+    }
+    
+  }
+
+  &.outline-black {
+    background: transparent;
+    color: var(--c-black);
+    border-color: var(--c-black);
+
+    &:hover {
+      background: var(--c-black);
+      color: var(--c-white);
+    }
+  }
+
+  &.circular {
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--c-black);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background-color: var(--c-black);
+      color: var(--c-white);
+    }
+
+    &.active {
+      border-color: transparent;
+      color: var(--c-white);
+      background: var(--c-indigo);
+      cursor: default;
+      pointer-events: none;
+    }
+  }
+
+  &.bsf-events-page-button {
+    gap: var(--ps-small);
+
+    i {
+      width: 25px;
+      height: 30px;
+      background-color: var(--c-white);
+      mask: url('../images/icon-cta-arrow-left.svg') center center no-repeat;
+      -webkit-mask: url('../images/icon-cta-arrow-left.svg') center center no-repeat;
+      mask-size: 100% 100%;
+      -webkit-mask-size: 100% 100%;
+      display: block;
+      transition: var(--tr-1);
+    }
+  }
+
+  &.add-to-calendar {
+    padding: var(--ps-small) var(--ps-default);
+    background: var(--c-indigo);
+    border-radius: var(--br-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ps-small);
+    align-self: flex-start;
+    min-height: 38px;
+
+    &.small {
+      padding: var(--ps-tiny);
+
+      .label {
+        display: none;
+      }
+    }
+
+    i {
+      width: 20px;
+      height: 20px;
+      background-color: var(--c-white);
+      mask: url('../images/icon-cta-calendar.svg') center center no-repeat;
+      -webkit-mask: url('../images/icon-cta-calendar.svg') center center no-repeat;
+      mask-size: 100% 100%;
+      -webkit-mask-size: 100% 100%;
+      display: block;
+      transition: var(--tr-1);
+    }
+
+    .label {
+      transition: var(--tr-1);
+      color: var(--c-white);
+    }
+    
+    &:hover {
+      background-color: var(--c-purple-3);
+
+      i {
+        background-color: var(--c-white);
+      }
+    }
+
+    &.active {
+      background-color: var(--c-white);
+
+      i {
+        background-color: var(--c-indigo);
+      }
+
+      .label {
+        color: var(--c-indigo);
+      }
+    }
+  }
+
+  &.small {
+    @extend .bsf-cta-small-style;
+
+    padding: var(--ps-small);
+
+    @include media-query(phone) {
+      padding: var(--ps-tiny);
+    }
+  }
+
+  &.large {
+    @extend .bsf-cta-large-style;
+
+    padding: var(--ps-default) var(--ps-medium);
+  }
+}
+
+.bsf-cta-text-link {
+  @extend .bsf-cta-style;
+  transition: var(--tr-1);
+
+  cursor: pointer;
+
+  &.small {
+    @extend .bsf-cta-small-style;
+  }
+
+  &.bsf-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--ps-tiny);
+    color: var(--c-text);
+    
+
+    &::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      background: var(--c-red);
+      mask: url('../images/icon-cta-close.svg') center center no-repeat;
+      -webkit-mask: url('../images/icon-cta-close.svg') center center no-repeat;
+      mask-size: 100% 100%;
+      -webkit-mask-size: 100% 100%;
+      transition: var(--tr-1);
+    }
+
+    &:hover {
+      color: var(--c-indigo);
+
+      &::before {
+        background-color: var(--c-indigo);
+      }
+    }
+  }
+}
+
