@@ -15,6 +15,45 @@ add_action('init', function () {
         $end_time = carbon_get_post_meta($event_id, 'bsf_ending_time') ?: '23:59:59';
         $description = carbon_get_post_meta($event_id, 'bsf_description');
 
+        $stageTerms = wp_get_post_terms(
+            $event_id,
+            'bsf_stage',
+            array(
+                'fields' => 'names'
+            )
+        );
+
+        $locationTerms = wp_get_post_terms(
+            $event_id,
+            'bsf_event_location',
+            array(
+                'fields' => 'names'
+            )
+        );
+
+        $stageInfo = '';
+        if (isset($stageTerms[0])) {
+            $stageInfo = $stageTerms[0];
+        }
+        if ($stageInfo && isset($locationTerms[0])) {
+            $stageInfo .= ' (' . $locationTerms[0] . ')';
+        }
+
+        $speakerIds = bsf_get_relevant_speakers($event_id);
+        $speakerNames = [];
+        if ($speakerIds) {
+            foreach ($speakerIds as $sid) {
+                $speakerNames[] = carbon_get_post_meta($sid, 'bsf_last_name') . ' ' . carbon_get_post_meta($sid, 'bsf_first_name');
+            }
+        }
+
+        if ($stageInfo) {
+            $description .= "\n" . sprintf(__('Sz\xEDnpad: %s', 'bsf-plugin'), $stageInfo);
+        }
+        if ($speakerNames) {
+            $description .= "\n" . sprintf(__('El\x0151ad\xF3: %s', 'bsf-plugin'), implode(', ', $speakerNames));
+        }
+
         $eventTerms = wp_get_post_terms(
             $event_id,
             'bsf_main_event_name',
@@ -82,6 +121,40 @@ function get_calendar_links($event_id)
     $start_time = carbon_get_post_meta($event_id, 'bsf_starting_time');
     $end_time = carbon_get_post_meta($event_id, 'bsf_ending_time');
     $description = carbon_get_post_meta($event_id, 'bsf_description');
+
+    $stageTerms = wp_get_post_terms(
+        $event_id,
+        'bsf_stage',
+        array('fields' => 'names')
+    );
+    $stageInfo = '';
+    if (isset($stageTerms[0])) {
+        $stageInfo = $stageTerms[0];
+    }
+
+    $stageLocation = wp_get_post_terms(
+        $event_id,
+        'bsf_event_location',
+        array('fields' => 'names')
+    );
+    if ($stageInfo && isset($stageLocation[0])) {
+        $stageInfo .= ' (' . $stageLocation[0] . ')';
+    }
+
+    $speakerIds = bsf_get_relevant_speakers($event_id);
+    $speakerNames = [];
+    if ($speakerIds) {
+        foreach ($speakerIds as $sid) {
+            $speakerNames[] = carbon_get_post_meta($sid, 'bsf_last_name') . ' ' . carbon_get_post_meta($sid, 'bsf_first_name');
+        }
+    }
+
+    if ($stageInfo) {
+        $description .= "\n" . sprintf(__('Sz\xEDnpad: %s', 'bsf-plugin'), $stageInfo);
+    }
+    if ($speakerNames) {
+        $description .= "\n" . sprintf(__('El\x0151ad\xF3: %s', 'bsf-plugin'), implode(', ', $speakerNames));
+    }
 
     $eventTerms = wp_get_post_terms(
         $event_id,

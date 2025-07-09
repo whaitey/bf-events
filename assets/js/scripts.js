@@ -60,5 +60,74 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("bsf-modal").classList.add("show");
     }
   });
+
+  const filterForm = document.getElementById("bsf-sidebar-filter");
+  const storageKey = "bsfEventFiltersState";
+  const pastButton = document.getElementById("bsf-show-past-events");
+
+  function saveFilters() {
+    if (!filterForm) return;
+    const data = {};
+    const formData = new FormData(filterForm);
+    for (const [key, value] of formData.entries()) {
+      if (data[key]) {
+        if (!Array.isArray(data[key])) data[key] = [data[key]];
+        data[key].push(value);
+      } else {
+        data[key] = value;
+      }
+    }
+    sessionStorage.setItem(storageKey, JSON.stringify(data));
+  }
+
+  function restoreFilters() {
+    if (!filterForm) return;
+    const saved = sessionStorage.getItem(storageKey);
+    if (!saved) return;
+    try {
+      const data = JSON.parse(saved);
+      Object.keys(data).forEach(name => {
+        const values = Array.isArray(data[name]) ? data[name] : [data[name]];
+        values.forEach(v => {
+          const field = filterForm.querySelector(`[name="${name}"][value="${v}"]`);
+          if (field) field.checked = true;
+          const input = filterForm.querySelector(`[name="${name}"]`);
+          if (input && input.type === "text") input.value = v;
+        });
+      });
+      htmx.trigger(filterForm, "change");
+    } catch (e) {}
+  }
+
+  function hidePastEvents() {
+    const now = new Date();
+    let hasHidden = false;
+    document.querySelectorAll(".bsf-event-card").forEach(card => {
+      const end = card.dataset.end;
+      if (end) {
+        const endTime = new Date(end);
+        if (endTime < now) {
+          card.classList.add("bsf-hidden-past");
+          hasHidden = true;
+        }
+      }
+    });
+    if (pastButton && hasHidden) pastButton.style.display = "block";
+  }
+
+  if (filterForm) {
+    filterForm.addEventListener("change", saveFilters);
+    restoreFilters();
+  }
+
+  if (pastButton) {
+    pastButton.addEventListener("click", function () {
+      document.querySelectorAll(".bsf-hidden-past").forEach(card => card.classList.remove("bsf-hidden-past"));
+      pastButton.style.display = "none";
+    });
+  }
+
+  document.body.addEventListener("htmx:afterSwap", hidePastEvents);
+  hidePastEvents();
 });
 
