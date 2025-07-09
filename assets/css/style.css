@@ -1181,13 +1181,10 @@
   padding: var(--ps-small);
   position: relative;
 }
-.bsf-event-card .bsf-event-card-speakers .bsf-speaker-card-compact.moderator::before {
-  content: "Moderátor:";
+.bsf-speaker-group-title {
   font-weight: bold;
-  color: var(--c-black);
-  position: absolute;
-  left: 0;
-  top: -22px;
+  margin: 0 0 var(--ps-small) 0;
+  display: block;
 }
 .bsf-event-card .bsf-event-card-speakers .bsf-speaker-card-compact.moderator .bsf-speaker-text .speaker-name {
   color: var(--c-white);
@@ -2025,11 +2022,15 @@
     gap: var(--ps-default);
     scroll-snap-type: x mandatory;
   }
-  .bsf-single-speaker-content-outer-wrapper .bsf-events-list-wrapper .bsf-speaker-card {
-    flex: 0 0 300px;
-    max-width: 300px;
-    scroll-snap-align: start;
-  }
+.bsf-single-speaker-content-outer-wrapper .bsf-events-list-wrapper .bsf-speaker-card {
+  flex: 0 0 300px;
+  max-width: 300px;
+  scroll-snap-align: start;
+}
+}
+
+.bsf-hidden-past {
+  display: none;
 }
 
 /*# sourceMappingURL=style.css.map */

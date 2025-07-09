@@ -1,4 +1,11 @@
-<div class="bsf-event-card scroll-reveal revealed">
+<?php
+  $date = carbon_get_post_meta($post->ID, 'bsf_date');
+  $start = carbon_get_post_meta($post->ID, 'bsf_starting_time');
+  $end = carbon_get_post_meta($post->ID, 'bsf_ending_time');
+  $data_start = $date && $start ? $date . ' ' . $start : '';
+  $data_end = $date && $end ? $date . ' ' . $end : '';
+?>
+<div class="bsf-event-card scroll-reveal revealed" data-start="<?php echo esc_attr($data_start); ?>" data-end="<?php echo esc_attr($data_end); ?>">
   <div class="bsf-tags-addtocalendar">
     <?php echo bsf_get_event_tags_and_cal(get_the_ID(), 'small'); ?>
   </div>

@@ -112,19 +112,66 @@ function bsf_filter_events() {
           'compare' => 'LIKE'
       )
     );
+
+    $speaker_query = new WP_Query([
+      'post_type' => 'bsf_speaker',
+      'posts_per_page' => -1,
+      'post_status' => 'publish',
+      'meta_query' => [
+        'relation' => 'OR',
+        [
+          'key' => 'bsf_first_name',
+          'value' => $search_query,
+          'compare' => 'LIKE',
+        ],
+        [
+          'key' => 'bsf_last_name',
+          'value' => $search_query,
+          'compare' => 'LIKE',
+        ],
+        [
+          'key' => 'bsf_title',
+          'value' => $search_query,
+          'compare' => 'LIKE',
+        ],
+      ],
+      'fields' => 'ids'
+    ]);
+
+    if ($speaker_query->have_posts()) {
+      $speaker_ids = $speaker_query->posts;
+      $speaker_meta_or = ['relation' => 'OR'];
+      foreach ($speaker_ids as $sid) {
+        $speaker_meta_or[] = [
+          'key' => 'bsf_speakers',
+          'value' => $sid,
+          'compare' => 'LIKE'
+        ];
+        $speaker_meta_or[] = [
+          'key' => 'bsf_moderators',
+          'value' => $sid,
+          'compare' => 'LIKE'
+        ];
+      }
+      $meta_query[] = $speaker_meta_or;
+    }
   }
   
-  $eventsQuery = new WP_Query( array( 
-      'post_type' => 'bsf_event', 
+  $eventsQuery = new WP_Query( array(
+      'post_type' => 'bsf_event',
       'posts_per_page' => 30,
       'paged' => $page,
       'post_status' => 'publish',
-      'orderby' => 'starting_time',
+      'meta_key' => '_bsf_featured',
+      'orderby' => array(
+          'meta_value' => 'DESC',
+          'starting_time' => 'ASC'
+      ),
       'order' => 'asc',
       'meta_query' => $meta_query,
       'tax_query' => $taxquery,
       '_meta_or_title' => $search_query
-    ) 
+    )
   );
 
 

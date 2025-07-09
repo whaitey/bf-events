@@ -156,40 +156,42 @@ function bsf_get_event_speakers($eventId) {
   $speakerNum = count($speakers);
   $maxSpeakerDisplayNum = 4;
 
-	$html = '<div class="bsf-event-card-speakers">';
+  $html = '<div class="bsf-event-card-speakers">';
 
-  foreach($moderators as $moderator):
-    $html .= '<div class="bsf-speaker-card-compact moderator">';
-		$html .= '<div class="avatar">';
-		$html .= wp_get_attachment_image(carbon_get_post_meta($moderator, 'bsf_avatar'), 'bsf_speaker_avatar_small');
-    $html .= '</div>';
-    $html .='<div class="bsf-speaker-text">';
-    $html .= '<p class="speaker-name">' . carbon_get_post_meta($moderator, 'bsf_last_name') . ' ' . carbon_get_post_meta($moderator, 'bsf_first_name') . '</p>';
-		$html .= '<p class="speaker-title">' . carbon_get_post_meta($moderator, 'bsf_title') . '</p>';
-		$html .= '</div>';
-		$html .= '<a href="' . get_permalink($moderator) . '" class="bsf-speaker-card-link"></a>';
-		$html .= '</div>';
-  endforeach;
+  if (!empty($moderators)) {
+    $html .= '<span class="bsf-speaker-group-title">' . __( 'Moderátor:', 'bsf-plugin' ) . '</span>';
+    foreach ($moderators as $moderator) {
+      $html .= '<div class="bsf-speaker-card-compact moderator">';
+      $html .= '<div class="avatar">' . wp_get_attachment_image(carbon_get_post_meta($moderator, 'bsf_avatar'), 'bsf_speaker_avatar_small') . '</div>';
+      $html .= '<div class="bsf-speaker-text">';
+      $html .= '<p class="speaker-name">' . carbon_get_post_meta($moderator, 'bsf_last_name') . ' ' . carbon_get_post_meta($moderator, 'bsf_first_name') . '</p>';
+      $html .= '<p class="speaker-title">' . carbon_get_post_meta($moderator, 'bsf_title') . '</p>';
+      $html .= '</div>';
+      $html .= '<a href="' . get_permalink($moderator) . '" class="bsf-speaker-card-link"></a>';
+      $html .= '</div>';
+    }
+  }
 
   /*var_dump($moderatorIds);
   echo '<br><br>';
   var_dump($speakers);*/
 
 
-	$firstFourSpeakers = array_slice($speakers, 0, $maxSpeakerDisplayNum);
+  $firstFourSpeakers = array_slice($speakers, 0, $maxSpeakerDisplayNum);
 
-	foreach($firstFourSpeakers as $speaker):
-		$html .= '<div class="bsf-speaker-card-compact">';
-		$html .= '<div class="avatar">';
-		$html .= wp_get_attachment_image(carbon_get_post_meta($speaker, 'bsf_avatar'), 'bsf_speaker_avatar_small');
-    $html .= '</div>';
-    $html .='<div class="bsf-speaker-text">';
-    $html .= '<p class="speaker-name">' . carbon_get_post_meta($speaker, 'bsf_last_name') . ' ' . carbon_get_post_meta($speaker, 'bsf_first_name') . '</p>';
-		$html .= '<p class="speaker-title">' . carbon_get_post_meta($speaker, 'bsf_title') . '</p>';
-		$html .= '</div>';
-		$html .= '<a href="' . get_permalink($speaker) . '" class="bsf-speaker-card-link"></a>';
-		$html .= '</div>';
-  endforeach;
+  if (!empty($firstFourSpeakers)) {
+    $html .= '<span class="bsf-speaker-group-title">' . __( 'Előadók:', 'bsf-plugin' ) . '</span>';
+    foreach ($firstFourSpeakers as $speaker) {
+      $html .= '<div class="bsf-speaker-card-compact">';
+      $html .= '<div class="avatar">' . wp_get_attachment_image(carbon_get_post_meta($speaker, 'bsf_avatar'), 'bsf_speaker_avatar_small') . '</div>';
+      $html .= '<div class="bsf-speaker-text">';
+      $html .= '<p class="speaker-name">' . carbon_get_post_meta($speaker, 'bsf_last_name') . ' ' . carbon_get_post_meta($speaker, 'bsf_first_name') . '</p>';
+      $html .= '<p class="speaker-title">' . carbon_get_post_meta($speaker, 'bsf_title') . '</p>';
+      $html .= '</div>';
+      $html .= '<a href="' . get_permalink($speaker) . '" class="bsf-speaker-card-link"></a>';
+      $html .= '</div>';
+    }
+  }
 
   if($speakerNum > $maxSpeakerDisplayNum):
     $queryString = 'admin-ajax.php?action=bsf_get_more_event_speakers';
