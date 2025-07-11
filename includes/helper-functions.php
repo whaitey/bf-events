@@ -398,6 +398,32 @@ function bsf_get_single_event_banner_tags($postId) {
   return $html;
 }
 
+function bsf_get_event_person_ids() {
+  $event_ids = get_posts([
+    'post_type'      => 'bsf_event',
+    'posts_per_page' => -1,
+    'fields'         => 'ids',
+    'post_status'    => 'publish',
+  ]);
+
+  $ids = [];
+
+  foreach ($event_ids as $eid) {
+    $speakers   = carbon_get_post_meta($eid, 'bsf_speakers');
+    $moderators = carbon_get_post_meta($eid, 'bsf_moderators');
+
+    $ids = array_merge(
+      $ids,
+      wp_list_pluck((array) $speakers, 'id'),
+      wp_list_pluck((array) $moderators, 'id')
+    );
+  }
+
+  $ids = array_unique(array_filter($ids));
+
+  return $ids;
+}
+
 // get relevant events to a speaker
 
 function bsf_get_relevant_events($speakerId) {
@@ -456,6 +482,148 @@ function bsf_get_relevant_moderators($eventId) {
   $moderators = carbon_get_post_meta($eventId, 'bsf_moderators');
 
   $post_ids = wp_list_pluck($moderators, 'id');
-  
-  return $post_ids;
+
+  return $post_ids;}
+
+// Find speaker IDs matching a search term by name or title
+function bsf_search_speaker_ids($term) {
+  global $wpdb;
+
+  $term = trim($term);
+  if ($term === '') {
+    return [];
+  }
+
+  $like = '%' . $wpdb->esc_like($term) . '%';
+
+  $sql = $wpdb->prepare(
+    "SELECT p.ID
+     FROM {$wpdb->posts} p
+     LEFT JOIN {$wpdb->postmeta} fn ON p.ID = fn.post_id AND fn.meta_key = '_bsf_first_name'
+     LEFT JOIN {$wpdb->postmeta} ln ON p.ID = ln.post_id AND ln.meta_key = '_bsf_last_name'
+     LEFT JOIN {$wpdb->postmeta} ti ON p.ID = ti.post_id AND ti.meta_key = '_bsf_title'
+     WHERE p.post_type = 'bsf_speaker' AND p.post_status = 'publish'
+       AND (fn.meta_value LIKE %s OR ln.meta_value LIKE %s OR ti.meta_value LIKE %s)",
+    $like,
+    $like,
+    $like
+  );
+
+  return $wpdb->get_col($sql);
+}
+
+// Get IDs of events featuring any of the specified speakers
+function bsf_get_event_ids_for_speakers($speaker_ids) {
+    if (empty($speaker_ids)) return [];
+    $event_ids = [];
+    $events = get_posts([
+        'post_type'      => 'bsf_event',
+        'posts_per_page' => -1,
+        'fields'         => 'ids',
+    ]);
+    foreach ($events as $event_id) {
+        // Előadók
+        $speakers = carbon_get_post_meta($event_id, 'bsf_speakers');
+        foreach ((array)$speakers as $sp) {
+            if (!empty($sp['id']) && in_array($sp['id'], $speaker_ids)) {
+                $event_ids[] = $event_id;
+                continue 2;
+            }
+        }
+        // Moderátorok
+        $moderators = carbon_get_post_meta($event_id, 'bsf_moderators');
+        foreach ((array)$moderators as $mod) {
+            if (!empty($mod['id']) && in_array($mod['id'], $speaker_ids)) {
+                $event_ids[] = $event_id;
+                continue 2;
+            }
+        }
+    }
+    return array_unique($event_ids);
+}
+
+
+// Search events by title, content, and descriptions
+function bsf_search_event_ids($term) {
+  $args = [
+    'post_type'      => 'bsf_event',
+    'posts_per_page' => -1,
+    'post_status'    => 'publish',
+    's'              => $term,
+    'fields'         => 'ids',
+    'meta_query'     => [
+      'relation' => 'OR',
+      [
+        'key'     => '_bsf_description',
+        'value'   => $term,
+        'compare' => 'LIKE',
+      ],
+      [
+        'key'     => '_bsf_short_description',
+        'value'   => $term,
+        'compare' => 'LIKE',
+      ],
+    ],
+  ];
+
+  $query = new WP_Query($args);
+  $ids = $query->posts;
+  wp_reset_postdata();
+  return $ids;
+}
+
+// Search events connected to taxonomy terms containing the term
+function bsf_search_taxonomy_event_ids($term) {
+  $taxonomies = ['bsf_main_event_name', 'bsf_stage', 'bsf_event_location', 'bsf_event_tag'];
+  $event_ids = [];
+  foreach ($taxonomies as $tax) {
+    $tids = get_terms([
+      'taxonomy'   => $tax,
+      'name__like' => $term,
+      'fields'     => 'ids',
+      'hide_empty' => false,
+    ]);
+    if (empty($tids) || is_wp_error($tids)) {
+      continue;
+    }
+    $posts = get_posts([
+      'post_type'      => 'bsf_event',
+      'posts_per_page' => -1,
+      'fields'         => 'ids',
+      'tax_query'      => [
+        [
+          'taxonomy' => $tax,
+          'field'    => 'term_id',
+          'terms'    => $tids,
+        ],
+      ],
+    ]);
+    if ($posts) {
+      $event_ids = array_merge($event_ids, $posts);
+    }
+  }
+  return array_unique($event_ids);
+}
+
+function bsf_search_event_ids_full($search_query) {
+    // 1. Esemény keresés cím, leírás, rövid leírás alapján
+    $event_ids_by_title_desc = bsf_search_event_ids($search_query);
+
+    // 2. Előadók keresése név/titulus alapján
+    $speaker_ids = bsf_search_speaker_ids($search_query);
+
+    // 3. Események keresése előadó/moderátor ID alapján (PHP-ban)
+    $event_ids_by_speakers = bsf_get_event_ids_for_speakers($speaker_ids);
+
+    // 4. Taxonómia keresés (ha kell)
+    $event_ids_by_tax = bsf_search_taxonomy_event_ids($search_query);
+
+    // 5. Eredmények egyesítése, duplikációk nélkül
+    $search_event_ids = array_unique(array_merge(
+        $event_ids_by_title_desc,
+        $event_ids_by_speakers,
+        $event_ids_by_tax
+    ));
+
+    return $search_event_ids;
 }

@@ -19,6 +19,8 @@ function bsf_filter_events() {
   }
 
   $search_query = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+
+
   $featured = isset($_POST['featured']) ? intval($_POST['featured']) : 0;
   $page = isset($_POST['currentpage']) ? intval($_POST['currentpage']) : 1;
   $nextPage = $page + 1;
@@ -27,12 +29,14 @@ function bsf_filter_events() {
   $stages = isset($_POST['stagesArray']) ? array_map('intval', (array)$_POST['stagesArray']) : [];
   $locations = isset($_POST['locationsArray']) ? array_map('intval', (array)$_POST['locationsArray']) : [];
   $tags = isset($_POST['tagsArray']) ? array_map('intval', (array)$_POST['tagsArray']) : [];
+  $speakers = isset($_POST['speakersArray']) ? array_map('intval', (array)$_POST['speakersArray']) : [];
 
   // Remove empty values (including empty strings and zeros)
   $eventNames = array_filter($eventNames);
   $stages = array_filter($stages);
   $locations = array_filter($locations);
   $tags = array_filter($tags);
+  $speakers = array_filter($speakers);
 
   // Initialize tax query
   $taxquery = ['relation' => 'AND'];
@@ -90,74 +94,39 @@ function bsf_filter_events() {
     )
   );
 
+if (!empty($speakers)) {
+    $speaker_meta_or = ['relation' => 'OR'];
+    foreach ($speakers as $sid) {
+      $speaker_meta_or[] = [
+        'key' => 'bsf_speakers',
+        'value' => $sid,
+        'compare' => 'LIKE'
+      ];
+      $speaker_meta_or[] = [
+        'key' => 'bsf_moderators',
+        'value' => $sid,
+        'compare' => 'LIKE'
+      ];
+    }
+    $meta_query[] = $speaker_meta_or;
+  }
+
+  $search_event_ids = [];
+
   if ($featured && empty($eventNames) && empty($stages) && empty($locations) && empty($tags) && empty($search_query)) {
     $meta_query[] = array(
-        'key' => '_bsf_featured', 
+        'key' => '_bsf_featured',
         'value' => 'yes',
         'compare' => '='
     );
   }
 
   if (!empty($search_query)) {
-    $meta_query['description_search'] = array(
-      'relation' => 'OR',
-      array(
-          'key'     => '_bsf_description',
-          'value'   => $search_query,
-          'compare' => 'LIKE'
-      ),
-      array(
-          'key'     => '_bsf_short_description',
-          'value'   => $search_query,
-          'compare' => 'LIKE'
-      )
-    );
+    $search_event_ids = bsf_search_event_ids_full($search_query);
+}
 
-    $speaker_query = new WP_Query([
-      'post_type' => 'bsf_speaker',
-      'posts_per_page' => -1,
-      'post_status' => 'publish',
-      'meta_query' => [
-        'relation' => 'OR',
-        [
-          'key' => 'bsf_first_name',
-          'value' => $search_query,
-          'compare' => 'LIKE',
-        ],
-        [
-          'key' => 'bsf_last_name',
-          'value' => $search_query,
-          'compare' => 'LIKE',
-        ],
-        [
-          'key' => 'bsf_title',
-          'value' => $search_query,
-          'compare' => 'LIKE',
-        ],
-      ],
-      'fields' => 'ids'
-    ]);
-
-    if ($speaker_query->have_posts()) {
-      $speaker_ids = $speaker_query->posts;
-      $speaker_meta_or = ['relation' => 'OR'];
-      foreach ($speaker_ids as $sid) {
-        $speaker_meta_or[] = [
-          'key' => 'bsf_speakers',
-          'value' => $sid,
-          'compare' => 'LIKE'
-        ];
-        $speaker_meta_or[] = [
-          'key' => 'bsf_moderators',
-          'value' => $sid,
-          'compare' => 'LIKE'
-        ];
-      }
-      $meta_query[] = $speaker_meta_or;
-    }
-  }
   
-  $eventsQuery = new WP_Query( array(
+  $query_args = array(
       'post_type' => 'bsf_event',
       'posts_per_page' => 30,
       'paged' => $page,
@@ -170,10 +139,18 @@ function bsf_filter_events() {
       'order' => 'asc',
       'meta_query' => $meta_query,
       'tax_query' => $taxquery,
-      '_meta_or_title' => $search_query
-    )
-  );
+      's' => $search_query
+    );
 
+  if (!empty($search_query)) {
+    $query_args['post__in'] = !empty($search_event_ids) ? $search_event_ids : array(0);
+  }
+
+  $eventsQuery = new WP_Query($query_args);
+
+if ($eventsQuery->have_posts()) {
+    error_log('Események a lekérdezésben: ' . print_r($eventsQuery->posts, true));
+}
 
 
   if ( $eventsQuery->have_posts() ) :								      

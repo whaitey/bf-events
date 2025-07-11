@@ -152,6 +152,11 @@
       justify-content: flex-start;
       row-gap: var(--ps-tiny);
       padding: var(--ps-default);
+
+        .dropdown-search {
+        margin-bottom: var(--ps-small);
+      }
+
     }
   }
   

@@ -13,10 +13,4 @@
       <div class="bsf-event-list-wrapper">
 
       </div>
-      <div class="bsf-buttons-wrapper">
-        <button id="bsf-show-past-events" class="bsf-button small" style="display:none;">
-          <?php _e('Korábbi programok megjelenítése', 'bsf-plugin'); ?>
-        </button>
-      </div>
-    </div>
-  </div></div>
+    </div></div>

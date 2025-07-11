@@ -56,7 +56,18 @@
       'order' => 'ASC'
   ) );
 
-
+    $speakerIds = bsf_get_event_person_ids();
+  if (!empty($speakerIds)) {
+    $speakers = get_posts([
+      'post_type'      => 'bsf_speaker',
+      'posts_per_page' => -1,
+      'post_status'    => 'publish',
+      'post__in'       => $speakerIds,
+      'orderby'        => 'meta_value',
+      'meta_key'       => '_bsf_last_name',
+      'order'          => 'ASC',
+    ]);
+  }
 
 ?>
 <div class="bsf-filter-widget sidebar-filter">
@@ -184,10 +195,10 @@
                     <div class="input-line checkbox-line">
                       <label>
                           <?php echo $location->name; ?>
-                          <input 
-                              type="checkbox" 
-                              name="locationsArray[]" 
-                              value="<?php echo $location->term_id; ?>" 
+                          <input
+                              type="checkbox"
+                              name="locationsArray[]"
+                              value="<?php echo $location->term_id; ?>"
                           >
                           <span class="checkmark"></span>
                       </label>
@@ -197,6 +208,41 @@
               </div>
             </div>
           <?php endif; ?>
+ <?php if(!empty($speakers)): ?>
+            <div class="bsf-form-input bsf-dropdown-filter-input" id="bsf-speaker-dropdown">
+              <button type="button" class="dropdown-filter-label">
+                <?php _e('Előadók', 'bsf-plugin'); ?>
+              </button>
+              <div class="input-list">
+              
+                <div class="input-list-inner-wrapper">
+                <div class="dropdown-search">
+                  <input type="text" class="bsf-text-input speaker-search" placeholder="<?php _e('Keresés...', 'bsf-plugin'); ?>">
+                </div>
+                  <?php foreach($speakers as $sp): ?>
+                    <div class="input-line checkbox-line">
+                      <label>
+                          <?php echo carbon_get_post_meta($sp->ID, 'bsf_last_name') . ' ' . carbon_get_post_meta($sp->ID, 'bsf_first_name'); ?>
+                          <input
+                              type="checkbox"
+                              name="speakersArray[]"
+                              value="<?php echo $sp->ID; ?>"
+                          >
+                          <span class="checkmark"></span>
+                      </label>
+                  </div>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            </div>
+          <?php endif; ?>
+          <div class="input-line checkbox-line" id="bsf-past-toggle-line">
+            <label>
+              <?php _e('Korábbi programok megjelenítése', 'bsf-plugin'); ?>
+              <input type="checkbox" name="showPast" id="bsf-show-past-events">
+              <span class="checkmark"></span>
+            </label>
+          </div>
 
         </div>
       </div>
@@ -240,6 +286,7 @@
     const searchInput = form.querySelector('input[name="search"]');
     const eventNameGroup = document.getElementById('bsf-sub-event-name-dropdown');
     const stageGroup = document.getElementById('bsf-stage-dropdown');
+    
 
     // Function to reset a radio group to "All" (empty value)
     function resetGroup(group) {
@@ -266,6 +313,19 @@
     setupExclusivity(eventNameGroup, stageGroup);
     setupExclusivity(stageGroup, eventNameGroup);
 
+    const speakerDropdown = document.getElementById("bsf-speaker-dropdown");
+      if (speakerDropdown) {
+        speakerDropdown.addEventListener("input", function(e) {
+          if (e.target.classList.contains("speaker-search")) {
+            const filter = e.target.value.toLowerCase();
+            speakerDropdown.querySelectorAll(".checkbox-line").forEach(line => {
+              const text = line.textContent.toLowerCase();
+              line.style.display = text.includes(filter) ? "" : "none";
+            });
+          }
+        });
+      }
+
     searchInput.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
         e.preventDefault(); // prevent native form submit
@@ -282,6 +342,11 @@
     document.getElementById('bsf-reset-filters').addEventListener('click', function() {
         // Reset the form fields (uncheck checkboxes)
         form.reset();
+
+        if (speakerSearchInput) {
+          speakerSearchInput.value = '';
+          speakerSearchInput.dispatchEvent(new Event('input'));
+        }
 
         // Optionally, trigger HTMX to reload the posts
         htmx.trigger(form, 'change'); // This will simulate a change event after resetting
@@ -305,5 +370,4 @@
         }
       });
     });
-
 </script>

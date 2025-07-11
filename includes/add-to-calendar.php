@@ -48,10 +48,10 @@ add_action('init', function () {
         }
 
         if ($stageInfo) {
-            $description .= "\n" . sprintf(__('Sz\xEDnpad: %s', 'bsf-plugin'), $stageInfo);
+            $description .= "\n" . sprintf(__('Színpad: %s', 'bsf-plugin'), $stageInfo);
         }
         if ($speakerNames) {
-            $description .= "\n" . sprintf(__('El\x0151ad\xF3: %s', 'bsf-plugin'), implode(', ', $speakerNames));
+            $description .= "\n" . sprintf(__('Előadó: %s', 'bsf-plugin'), implode(', ', $speakerNames));
         }
 
         $eventTerms = wp_get_post_terms(
@@ -150,10 +150,10 @@ function get_calendar_links($event_id)
     }
 
     if ($stageInfo) {
-        $description .= "\n" . sprintf(__('Sz\xEDnpad: %s', 'bsf-plugin'), $stageInfo);
+        $description .= "\n" . sprintf(__('Színpad: %s', 'bsf-plugin'), $stageInfo);
     }
     if ($speakerNames) {
-        $description .= "\n" . sprintf(__('El\x0151ad\xF3: %s', 'bsf-plugin'), implode(', ', $speakerNames));
+        $description .= "\n" . sprintf(__('Előadó: %s', 'bsf-plugin'), implode(', ', $speakerNames));
     }
 
     $eventTerms = wp_get_post_terms(
