@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BF Events
  * Description: Teljes körű eseménykezelő rendszer WordPress plugin
- * Version: 1.0.3
+ * Version: 1.1.0
  * Author: ZeusWeb
  * Plugin URI: https://github.com/whaitey/bf-events
  * GitHub Plugin URI: https://github.com/whaitey/bf-events
@@ -48,6 +48,7 @@ function bsf_events_enqueue_assets() {
 
     wp_localize_script('bsf-events-scripts', 'bsfEventsAjax', [
         'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('filter_events'),
     ]);
 }
 add_action('wp_enqueue_scripts', 'bsf_events_enqueue_assets');

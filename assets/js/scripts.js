@@ -136,5 +136,168 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.body.addEventListener("htmx:afterSwap", hidePastEvents);
   hidePastEvents();
+
+  // Dynamic filter functionality
+  function updateDynamicFilters() {
+    if (!filterForm) return;
+
+    const formData = new FormData(filterForm);
+    const selectedEvents = [];
+    
+    // Get selected event names
+    const eventCheckboxes = filterForm.querySelectorAll('input[name="eventNamesArray[]"]:checked');
+    eventCheckboxes.forEach(checkbox => {
+      selectedEvents.push(checkbox.value);
+    });
+
+    // Prepare data for AJAX request
+    const data = new FormData();
+    data.append('action', 'bsf_get_dynamic_filter_options');
+    data.append('nonce', bsfEventsAjax.nonce || '');
+    
+    selectedEvents.forEach(eventId => {
+      data.append('eventNamesArray[]', eventId);
+    });
+
+    // Make AJAX request
+    fetch(bsfEventsAjax.ajax_url, {
+      method: 'POST',
+      body: data
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        updateFilterOptions(data.data);
+      }
+    })
+    .catch(error => {
+      console.error('Error updating dynamic filters:', error);
+    });
+  }
+
+  function updateFilterOptions(options) {
+    // Update stages
+    updateDropdownOptions('bsf-stage-dropdown', options.stages, 'stagesArray[]');
+    
+    // Update locations
+    updateDropdownOptions('bsf-location-dropdown', options.locations, 'locationsArray[]');
+    
+    // Update tags
+    updateTagOptions(options.tags);
+    
+    // Update speakers
+    updateDropdownOptions('bsf-speaker-dropdown', options.speakers, 'speakersArray[]');
+    
+    // Update companies
+    updateCompanyOptions(options.companies);
+  }
+
+  function updateDropdownOptions(dropdownId, options, inputName) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
+
+    const inputList = dropdown.querySelector('.input-list-inner-wrapper');
+    if (!inputList) return;
+
+    // Clear existing options (except search input)
+    const searchInput = inputList.querySelector('.dropdown-search');
+    inputList.innerHTML = '';
+    if (searchInput) {
+      inputList.appendChild(searchInput);
+    }
+
+    // Add new options
+    options.forEach(option => {
+      const line = document.createElement('div');
+      line.className = 'input-line checkbox-line';
+      
+      const label = document.createElement('label');
+      const name = option.name || option.post_title || option;
+      label.textContent = name;
+      
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.name = inputName;
+      input.value = option.term_id || option.ID || option;
+      
+      const checkmark = document.createElement('span');
+      checkmark.className = 'checkmark';
+      
+      label.appendChild(input);
+      label.appendChild(checkmark);
+      line.appendChild(label);
+      inputList.appendChild(line);
+    });
+  }
+
+  function updateTagOptions(tags) {
+    const tagWrapper = document.querySelector('.bsf-tag-filters-wrapper');
+    if (!tagWrapper) return;
+
+    // Clear existing tags
+    tagWrapper.innerHTML = '';
+
+    // Add new tags
+    tags.forEach(tag => {
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.name = 'tagsArray[]';
+      input.value = tag.term_id;
+      input.id = `bsf-tag-input-${tag.term_id}`;
+      
+      const label = document.createElement('label');
+      label.className = 'bsf-event-tag bsf-button small outline-black';
+      label.setAttribute('for', `bsf-tag-input-${tag.term_id}`);
+      label.textContent = tag.name;
+      
+      tagWrapper.appendChild(input);
+      tagWrapper.appendChild(label);
+    });
+  }
+
+  function updateCompanyOptions(companies) {
+    const companyDropdown = document.getElementById('bsf-company-dropdown');
+    if (!companyDropdown) return;
+
+    const inputList = companyDropdown.querySelector('.input-list-inner-wrapper');
+    if (!inputList) return;
+
+    // Clear existing options (except search input)
+    const searchInput = inputList.querySelector('.dropdown-search');
+    inputList.innerHTML = '';
+    if (searchInput) {
+      inputList.appendChild(searchInput);
+    }
+
+    // Add new options
+    companies.forEach(company => {
+      const line = document.createElement('div');
+      line.className = 'input-line checkbox-line';
+      
+      const label = document.createElement('label');
+      label.textContent = company;
+      
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.name = 'companiesArray[]';
+      input.value = company;
+      
+      const checkmark = document.createElement('span');
+      checkmark.className = 'checkmark';
+      
+      label.appendChild(input);
+      label.appendChild(checkmark);
+      line.appendChild(label);
+      inputList.appendChild(line);
+    });
+  }
+
+  // Add event listeners for dynamic filtering
+  if (filterForm) {
+    const eventCheckboxes = filterForm.querySelectorAll('input[name="eventNamesArray[]"]');
+    eventCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', updateDynamicFilters);
+    });
+  }
 });
 

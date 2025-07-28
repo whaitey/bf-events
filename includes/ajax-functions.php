@@ -566,3 +566,188 @@ function bsf_load_banner() {
 
 add_action('wp_ajax_bsf_load_banner', 'bsf_load_banner');
 add_action('wp_ajax_nopriv_bsf_load_banner', 'bsf_load_banner');
+
+// Get dynamic filter options based on selected sub-events
+function bsf_get_dynamic_filter_options() {
+    if (!isset($_GET['nonce']) || !wp_verify_nonce($_GET['nonce'], 'filter_events')) {
+        wp_send_json_error(['message' => 'Invalid nonce'], 403);
+        wp_die();
+    }
+
+    if (!defined('DOING_AJAX') || !DOING_AJAX) {
+        wp_send_json_error(['message' => 'Invalid request'], 403);
+        wp_die();
+    }
+
+    $selectedEventNames = isset($_POST['eventNamesArray']) ? array_map('intval', (array)$_POST['eventNamesArray']) : [];
+    $selectedEventNames = array_filter($selectedEventNames);
+
+    // If no events selected, return all options
+    if (empty($selectedEventNames)) {
+        $response = [
+            'stages' => get_terms([
+                'taxonomy' => 'bsf_stage',
+                'hide_empty' => true,
+                'orderby' => 'term_id',
+                'order' => 'ASC'
+            ]),
+            'locations' => get_terms([
+                'taxonomy' => 'bsf_event_location',
+                'hide_empty' => true,
+                'orderby' => 'term_id',
+                'order' => 'ASC'
+            ]),
+            'tags' => get_terms([
+                'taxonomy' => 'bsf_event_tag',
+                'hide_empty' => true,
+                'orderby' => 'title',
+                'order' => 'ASC'
+            ]),
+            'speakers' => [],
+            'companies' => []
+        ];
+
+        // Get all speakers
+        $speakerIds = bsf_get_event_person_ids();
+        if (!empty($speakerIds)) {
+            $response['speakers'] = get_posts([
+                'post_type' => 'bsf_speaker',
+                'posts_per_page' => -1,
+                'post_status' => 'publish',
+                'post__in' => $speakerIds,
+                'orderby' => 'meta_value',
+                'meta_key' => '_bsf_last_name',
+                'order' => 'ASC',
+            ]);
+        }
+
+        // Get all companies
+        $company_args = [
+            'post_type' => 'bsf_speaker',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'fields' => 'ids',
+        ];
+        $company_speaker_ids = get_posts($company_args);
+        $companies = [];
+        foreach ($company_speaker_ids as $sid) {
+            $company = carbon_get_post_meta($sid, 'bsf_company');
+            if (!empty($company)) {
+                $companies[] = $company;
+            }
+        }
+        $response['companies'] = array_unique($companies);
+        sort($response['companies'], SORT_LOCALE_STRING);
+
+        wp_send_json_success($response);
+        wp_die();
+    }
+
+    // Get events that match the selected sub-events
+    $events = get_posts([
+        'post_type' => 'bsf_event',
+        'posts_per_page' => -1,
+        'post_status' => 'publish',
+        'tax_query' => [
+            [
+                'taxonomy' => 'bsf_main_event_name',
+                'field' => 'term_id',
+                'terms' => $selectedEventNames,
+                'operator' => 'IN'
+            ]
+        ],
+        'meta_query' => [
+            'starting_time' => [
+                'key' => '_bsf_starting_time',
+                'compare' => 'EXISTS',
+            ]
+        ]
+    ]);
+
+    if (empty($events)) {
+        wp_send_json_success([
+            'stages' => [],
+            'locations' => [],
+            'tags' => [],
+            'speakers' => [],
+            'companies' => []
+        ]);
+        wp_die();
+    }
+
+    $eventIds = wp_list_pluck($events, 'ID');
+
+    // Get stages from these events
+    $stageTerms = wp_get_object_terms($eventIds, 'bsf_stage', ['fields' => 'all']);
+    $stages = [];
+    foreach ($stageTerms as $term) {
+        if (!is_wp_error($term) && $term->count > 0) {
+            $stages[] = $term;
+        }
+    }
+
+    // Get locations from these events
+    $locationTerms = wp_get_object_terms($eventIds, 'bsf_event_location', ['fields' => 'all']);
+    $locations = [];
+    foreach ($locationTerms as $term) {
+        if (!is_wp_error($term) && $term->count > 0) {
+            $locations[] = $term;
+        }
+    }
+
+    // Get tags from these events
+    $tagTerms = wp_get_object_terms($eventIds, 'bsf_event_tag', ['fields' => 'all']);
+    $tags = [];
+    foreach ($tagTerms as $term) {
+        if (!is_wp_error($term) && $term->count > 0) {
+            $tags[] = $term;
+        }
+    }
+
+    // Get speakers from these events
+    $speakerIds = [];
+    foreach ($eventIds as $eventId) {
+        $speakers = bsf_get_relevant_speakers($eventId);
+        $moderators = bsf_get_relevant_moderators($eventId);
+        $speakerIds = array_merge($speakerIds, (array)$speakers, (array)$moderators);
+    }
+    $speakerIds = array_unique(array_filter($speakerIds));
+
+    $speakers = [];
+    if (!empty($speakerIds)) {
+        $speakers = get_posts([
+            'post_type' => 'bsf_speaker',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'post__in' => $speakerIds,
+            'orderby' => 'meta_value',
+            'meta_key' => '_bsf_last_name',
+            'order' => 'ASC',
+        ]);
+    }
+
+    // Get companies from these speakers
+    $companies = [];
+    foreach ($speakerIds as $sid) {
+        $company = carbon_get_post_meta($sid, 'bsf_company');
+        if (!empty($company)) {
+            $companies[] = $company;
+        }
+    }
+    $companies = array_unique($companies);
+    sort($companies, SORT_LOCALE_STRING);
+
+    $response = [
+        'stages' => $stages,
+        'locations' => $locations,
+        'tags' => $tags,
+        'speakers' => $speakers,
+        'companies' => $companies
+    ];
+
+    wp_send_json_success($response);
+    wp_die();
+}
+
+add_action('wp_ajax_bsf_get_dynamic_filter_options', 'bsf_get_dynamic_filter_options');
+add_action('wp_ajax_nopriv_bsf_get_dynamic_filter_options', 'bsf_get_dynamic_filter_options');
