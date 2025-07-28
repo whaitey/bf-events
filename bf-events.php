@@ -1,10 +1,17 @@
 <?php
 /**
- * Plugin Name: BSF Events
- * Description: A custom event handler and visualizer plugin
+ * Plugin Name: BF Events
+ * Description: Teljes körű eseménykezelő rendszer WordPress plugin
  * Version: 1.0.0
  * Author: Your Name
- * License: GPL2
+ * Plugin URI: https://github.com/whaitey/bf-events
+ * GitHub Plugin URI: https://github.com/whaitey/bf-events
+ * GitHub Branch: main-2
+ * Requires at least: 5.0
+ * Tested up to: 6.4
+ * Requires PHP: 7.0
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 // Prevent direct access
