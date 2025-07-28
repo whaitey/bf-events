@@ -141,14 +141,17 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateDynamicFilters() {
     if (!filterForm) return;
 
-    const formData = new FormData(filterForm);
     const selectedEvents = [];
     
-    // Get selected event names
-    const eventCheckboxes = filterForm.querySelectorAll('input[name="eventNamesArray[]"]:checked');
-    eventCheckboxes.forEach(checkbox => {
-      selectedEvents.push(checkbox.value);
+    // Get selected event names (radio buttons)
+    const eventRadios = filterForm.querySelectorAll('input[name="eventNamesArray[]"]:checked');
+    eventRadios.forEach(radio => {
+      if (radio.value !== '') { // Don't include "Összes" (All) option
+        selectedEvents.push(radio.value);
+      }
     });
+
+    console.log('Selected events:', selectedEvents); // Debug
 
     // Prepare data for AJAX request
     const data = new FormData();
@@ -159,6 +162,8 @@ document.addEventListener("DOMContentLoaded", function () {
       data.append('eventNamesArray[]', eventId);
     });
 
+    console.log('Sending AJAX request...'); // Debug
+
     // Make AJAX request
     fetch(bsfEventsAjax.ajax_url, {
       method: 'POST',
@@ -166,6 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .then(response => response.json())
     .then(data => {
+      console.log('AJAX response:', data); // Debug
       if (data.success) {
         updateFilterOptions(data.data);
       }
@@ -176,6 +182,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateFilterOptions(options) {
+    console.log('Updating filter options with:', options); // Debug
+    
     // Update stages
     updateDropdownOptions('bsf-stage-dropdown', options.stages, 'stagesArray[]');
     
@@ -193,11 +201,19 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateDropdownOptions(dropdownId, options, inputName) {
+    console.log(`Updating dropdown ${dropdownId} with ${options.length} options`); // Debug
+    
     const dropdown = document.getElementById(dropdownId);
-    if (!dropdown) return;
+    if (!dropdown) {
+      console.log(`Dropdown ${dropdownId} not found`); // Debug
+      return;
+    }
 
     const inputList = dropdown.querySelector('.input-list-inner-wrapper');
-    if (!inputList) return;
+    if (!inputList) {
+      console.log(`Input list not found in ${dropdownId}`); // Debug
+      return;
+    }
 
     // Clear existing options (except search input)
     const searchInput = inputList.querySelector('.dropdown-search');
@@ -294,9 +310,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Add event listeners for dynamic filtering
   if (filterForm) {
-    const eventCheckboxes = filterForm.querySelectorAll('input[name="eventNamesArray[]"]');
-    eventCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', updateDynamicFilters);
+    const eventRadios = filterForm.querySelectorAll('input[name="eventNamesArray[]"]');
+    eventRadios.forEach(radio => {
+      radio.addEventListener('change', updateDynamicFilters);
     });
   }
 });
