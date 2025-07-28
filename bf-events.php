@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BF Events
  * Description: Teljes körű eseménykezelő rendszer WordPress plugin
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: ZeusWeb
  * Plugin URI: https://github.com/whaitey/bf-events
  * GitHub Plugin URI: https://github.com/whaitey/bf-events
@@ -20,10 +20,10 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin Update Checker
-require_once __DIR__ . '/plugin-update-checker/plugin-update-checker.php';
-use YahnisElsts\PluginUpdateChecker\v5p6\Plugin\UpdateChecker;
+require_once __DIR__ . '/load-v5p6.php';
+use YahnisElsts\PluginUpdateChecker\v5p6\PucFactory;
 
-$myUpdateChecker = UpdateChecker::buildUpdateChecker(
+$myUpdateChecker = PucFactory::buildUpdateChecker(
     'https://github.com/whaitey/bf-events',
     __FILE__,
     'bf-events'

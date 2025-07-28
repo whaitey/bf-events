@@ -100,6 +100,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function hidePastEvents() {
+    // Check if we're on a speaker page - if so, don't hide past events
+    const isSpeakerPage = document.querySelector('.bsf-single-speaker-content-outer-wrapper');
+    if (isSpeakerPage) {
+      return; // Don't hide past events on speaker pages
+    }
+
     const showPast = pastCheckbox && pastCheckbox.checked;
     const now = new Date();
     document.querySelectorAll(".bsf-event-card").forEach(card => {
