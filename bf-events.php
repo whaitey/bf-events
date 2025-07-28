@@ -19,6 +19,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Plugin Update Checker
+require_once __DIR__ . '/plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5p6\Plugin\UpdateChecker;
+
+$myUpdateChecker = UpdateChecker::buildUpdateChecker(
+    'https://github.com/whaitey/bf-events',
+    __FILE__,
+    'bf-events'
+);
+
 // Include Carbon Fields(and other vendors if needed)
 
 define('BSF_PLUGIN_DIR', plugin_dir_path(__FILE__));
