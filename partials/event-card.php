@@ -7,7 +7,7 @@
 ?>
 <div class="bsf-event-card scroll-reveal revealed" data-start="<?php echo esc_attr($data_start); ?>" data-end="<?php echo esc_attr($data_end); ?>">
   <div class="bsf-tags-addtocalendar">
-    <?php echo bsf_get_event_tags_and_cal(get_the_ID(), 'small'); ?>
+    <?php echo bsf_get_event_tags_and_cal(get_the_ID(), 'small', true); ?>
   </div>
   
   
