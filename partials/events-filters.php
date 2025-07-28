@@ -115,7 +115,7 @@ sort($companies, SORT_LOCALE_STRING);
             >
           </div>
 
-          <?php if(!empty($subEventNames)): ?>
+          <?php if(!empty($subEventNames) && carbon_get_theme_option('bsf_show_event_filter')): ?>
             <div class="bsf-form-input bsf-dropdown-filter-input" id="bsf-sub-event-name-dropdown">
               <button type="button" class="dropdown-filter-label">
                 <?php _e('Alesemény', 'bsf-plugin'); ?>
@@ -158,7 +158,7 @@ sort($companies, SORT_LOCALE_STRING);
             </div>
           <?php endif; ?>
 
-          <?php if(!empty($stages) && ! is_tax('bsf_stage')): ?>
+          <?php if(!empty($stages) && ! is_tax('bsf_stage') && carbon_get_theme_option('bsf_show_stage_filter')): ?>
             <div class="bsf-form-input bsf-dropdown-filter-input" id="bsf-stage-dropdown">
               <button type="button" class="dropdown-filter-label">
                 <?php echo $stageTax->labels->name; ?>
@@ -201,7 +201,7 @@ sort($companies, SORT_LOCALE_STRING);
             </div>
           <?php endif; ?>
 
-          <?php if(!empty($locations)): ?>
+          <?php if(!empty($locations) && carbon_get_theme_option('bsf_show_location_filter')): ?>
             <div class="bsf-form-input bsf-dropdown-filter-input" id="bsf-location-dropdown">
               <button type="button" class="dropdown-filter-label">
                 <?php echo $eventLocationTax->labels->name; ?>
@@ -225,7 +225,7 @@ sort($companies, SORT_LOCALE_STRING);
               </div>
             </div>
           <?php endif; ?>
- <?php if(!empty($speakers)): ?>
+ <?php if(!empty($speakers) && carbon_get_theme_option('bsf_show_speaker_filter')): ?>
             <div class="bsf-form-input bsf-dropdown-filter-input" id="bsf-speaker-dropdown">
               <button type="button" class="dropdown-filter-label">
                 <?php _e('Előadók', 'bsf-plugin'); ?>
@@ -253,7 +253,7 @@ sort($companies, SORT_LOCALE_STRING);
               </div>
             </div>
           <?php endif; ?>
-<?php if(!empty($companies)): ?>
+<?php if(!empty($companies) && carbon_get_theme_option('bsf_show_company_filter')): ?>
   <div class="bsf-form-input bsf-dropdown-filter-input" id="bsf-company-dropdown">
     <button type="button" class="dropdown-filter-label">
       <?php _e('Cégek', 'bsf-plugin'); ?>
@@ -280,6 +280,7 @@ sort($companies, SORT_LOCALE_STRING);
     </div>
   </div>
 <?php endif; ?>
+          <?php if(carbon_get_theme_option('bsf_show_past_events_filter')): ?>
           <div class="input-line checkbox-line" id="bsf-past-toggle-line">
             <label>
               <?php _e('Korábbi programok megjelenítése', 'bsf-plugin'); ?>
@@ -287,10 +288,11 @@ sort($companies, SORT_LOCALE_STRING);
               <span class="checkmark"></span>
             </label>
           </div>
+          <?php endif; ?>
 
         </div>
       </div>
-      <?php if(!empty($eventTags)): ?>
+      <?php if(!empty($eventTags) && carbon_get_theme_option('bsf_show_tag_filter')): ?>
         <div class="bsf-tag-filters-wrapper bsf-buttons-wrapper">
           <?php foreach($eventTags as $tag): ?>
             <input 

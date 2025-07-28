@@ -90,5 +90,35 @@ add_action('carbon_fields_register_fields', function () {
 
             
         ) )
+      ->add_tab( __('Szűrők', 'bsf_plugin'), array(
+            Field::make( 'checkbox', 'bsf_show_event_filter', __('Alesemény szűrő megjelenítése', 'bsf_plugin'))
+            ->set_default_value(true)
+            ->set_help_text(__('Bekapcsolja vagy kikapcsolja az alesemény szűrőt a frontend oldalon', 'bsf_plugin')),
+            
+            Field::make( 'checkbox', 'bsf_show_stage_filter', __('Színpad szűrő megjelenítése', 'bsf_plugin'))
+            ->set_default_value(true)
+            ->set_help_text(__('Bekapcsolja vagy kikapcsolja a színpad szűrőt a frontend oldalon', 'bsf_plugin')),
+            
+            Field::make( 'checkbox', 'bsf_show_location_filter', __('Helyszín szűrő megjelenítése', 'bsf_plugin'))
+            ->set_default_value(true)
+            ->set_help_text(__('Bekapcsolja vagy kikapcsolja a helyszín szűrőt a frontend oldalon', 'bsf_plugin')),
+            
+            Field::make( 'checkbox', 'bsf_show_speaker_filter', __('Előadó szűrő megjelenítése', 'bsf_plugin'))
+            ->set_default_value(true)
+            ->set_help_text(__('Bekapcsolja vagy kikapcsolja az előadó szűrőt a frontend oldalon', 'bsf_plugin')),
+            
+            Field::make( 'checkbox', 'bsf_show_company_filter', __('Cég szűrő megjelenítése', 'bsf_plugin'))
+            ->set_default_value(true)
+            ->set_help_text(__('Bekapcsolja vagy kikapcsolja a cég szűrőt a frontend oldalon', 'bsf_plugin')),
+            
+            Field::make( 'checkbox', 'bsf_show_tag_filter', __('Címke szűrő megjelenítése', 'bsf_plugin'))
+            ->set_default_value(true)
+            ->set_help_text(__('Bekapcsolja vagy kikapcsolja a címke szűrőt a frontend oldalon', 'bsf_plugin')),
+            
+            Field::make( 'checkbox', 'bsf_show_past_events_filter', __('Korábbi programok szűrő megjelenítése', 'bsf_plugin'))
+            ->set_default_value(true)
+            ->set_help_text(__('Bekapcsolja vagy kikapcsolja a korábbi programok szűrőt a frontend oldalon', 'bsf_plugin')),
+            
+        ) )
       ;
 });
