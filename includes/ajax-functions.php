@@ -30,6 +30,7 @@ function bsf_filter_events() {
   $locations = isset($_POST['locationsArray']) ? array_map('intval', (array)$_POST['locationsArray']) : [];
   $tags = isset($_POST['tagsArray']) ? array_map('intval', (array)$_POST['tagsArray']) : [];
   $speakers = isset($_POST['speakersArray']) ? array_map('intval', (array)$_POST['speakersArray']) : [];
+  $companies = isset($_POST['companiesArray']) ? (array)$_POST['companiesArray'] : [];
 
   // Remove empty values (including empty strings and zeros)
   $eventNames = array_filter($eventNames);
@@ -125,6 +126,57 @@ if (!empty($speakers)) {
     $search_event_ids = bsf_search_event_ids_full($search_query);
 }
 
+  // If companies are selected, find all speaker IDs with those companies
+  $company_speaker_ids = [];
+  if (!empty($companies)) {
+    $args = array(
+      'post_type' => 'bsf_speaker',
+      'posts_per_page' => -1,
+      'post_status' => 'publish',
+      'fields' => 'ids',
+      'meta_query' => array(
+        'relation' => 'OR',
+        array_map(function($company) {
+          return array(
+            'key' => 'bsf_company',
+            'value' => $company,
+            'compare' => 'LIKE',
+          );
+        }, $companies)
+      ),
+    );
+    $company_speaker_ids = get_posts($args);
+  }
+
+  // If company_speaker_ids is set, filter events to only those with these speakers/moderators
+  $event_ids_by_company = [];
+  if (!empty($company_speaker_ids)) {
+    $all_event_ids = get_posts([
+      'post_type'      => 'bsf_event',
+      'posts_per_page' => -1,
+      'fields'         => 'ids',
+      'post_status'    => 'publish',
+    ]);
+    foreach ($all_event_ids as $event_id) {
+      $speakers = bsf_get_relevant_speakers($event_id);
+      $moderators = bsf_get_relevant_moderators($event_id);
+      $all_people = array_merge((array)$speakers, (array)$moderators);
+      if (array_intersect($company_speaker_ids, $all_people)) {
+        $event_ids_by_company[] = $event_id;
+      }
+    }
+  }
+
+  $company = isset($_POST['company']) ? sanitize_text_field($_POST['company']) : '';
+
+  if (!empty($company)) {
+    $meta_query[] = array(
+      'key' => 'bsf_company',
+      'value' => $company,
+      'compare' => 'LIKE',
+    );
+  }
+
   
   $query_args = array(
       'post_type' => 'bsf_event',
@@ -144,6 +196,16 @@ if (!empty($speakers)) {
 
   if (!empty($search_query)) {
     $query_args['post__in'] = !empty($search_event_ids) ? $search_event_ids : array(0);
+  }
+
+  // If filtering by company, add post__in to query args
+  if (!empty($event_ids_by_company)) {
+    $query_args['post__in'] = $event_ids_by_company;
+  } else if (!empty($search_event_ids)) {
+    $query_args['post__in'] = $search_event_ids;
+  } else {
+    // If neither company nor search filters are active, do not set post__in (show all events)
+    unset($query_args['post__in']);
   }
 
   $eventsQuery = new WP_Query($query_args);
@@ -255,7 +317,15 @@ function bsf_get_more_event_speakers(){
     $html .= '</div>';
     $html .='<div class="bsf-speaker-text">';
     $html .= '<p class="speaker-name">' . carbon_get_post_meta($speaker['id'], 'bsf_last_name') . ' ' . carbon_get_post_meta($speaker['id'], 'bsf_first_name') . '</p>';
-		$html .= '<p class="speaker-title">' . carbon_get_post_meta($speaker['id'], 'bsf_title') . '</p>';
+    $title = carbon_get_post_meta($speaker['id'], 'bsf_title');
+    $company = carbon_get_post_meta($speaker['id'], 'bsf_company');
+    $company_title = $company;
+    if ($company && $title) {
+      $company_title = $company . ' - ' . $title;
+    } elseif ($title) {
+      $company_title = $title;
+    }
+    $html .= '<p class="speaker-title">' . esc_html($company_title) . '</p>';
 		$html .= '</div>';
 		$html .= '<a href="' . get_permalink($speaker['id']) . '" class="bsf-speaker-card-link"></a>';
 		$html .= '</div>';
@@ -291,6 +361,7 @@ function bsf_filter_speakers() {
   $stages = $_POST['stagesArray'];
   $page = isset($_POST['currentpage']) ? intval($_POST['currentpage']) : 1;
   $nextPage = $page + 1;
+  $company = isset($_POST['company']) ? sanitize_text_field($_POST['company']) : '';
 
   $taxquery = [];
 
@@ -345,6 +416,17 @@ function bsf_filter_speakers() {
     $person_ids = array_keys($person_ids);
   }
 
+  $meta_query = [
+    'relation' => 'AND',
+  ];
+  if (!empty($company)) {
+    $meta_query[] = [
+      'key' => 'bsf_company',
+      'value' => $company,
+      'compare' => 'LIKE',
+    ];
+  }
+
   $speakersQuery = new WP_Query([
     'post_type' => 'bsf_speaker',
     'posts_per_page' => 30,
@@ -354,7 +436,7 @@ function bsf_filter_speakers() {
     'orderby' => 'meta_value',
     'meta_key' => '_bsf_last_name',
     'order' => 'ASC',
-    'meta_query' => [
+    'meta_query' => array_merge([
       'relation' => 'OR',
       [
         'key' => 'bsf_first_name',
@@ -376,7 +458,7 @@ function bsf_filter_speakers() {
         'value' => $search_query,
         'compare' => 'LIKE',
       ]
-    ],
+    ], $meta_query),
   ]);
 
   if ($speakersQuery->have_posts()) {

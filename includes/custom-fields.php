@@ -60,7 +60,8 @@ add_action('carbon_fields_register_fields', function () {
             Field::make('image', 'bsf_avatar', __('Fotó', 'bsf-plugin'))->set_width(20),
             Field::make('text', 'bsf_last_name', __('Vezetéknév', 'bsf-plugin'))->set_width(40),
             Field::make('text', 'bsf_first_name', __('Keresztnév', 'bsf-plugin'))->set_width(40),
-            Field::make('text', 'bsf_title', __('Tisztség, pozíció', 'bsf-plugin'))
+            Field::make('text', 'bsf_company', __('Cég', 'bsf-plugin')),
+            Field::make('text', 'bsf_title', __('Tisztség, pozíció', 'bsf-plugin')),
         ) )
         ->add_tab( __('Kapcsolati információ', 'bsf-plugin'), array(
             Field::make( 'complex', 'bsf_contact_info', __('Kapcsolati adatok', 'bsf-plugin'))->set_max(3)

@@ -145,74 +145,82 @@ function bsf_get_event_meta($postId) {
 }
 
 function bsf_get_event_speakers($eventId) {
-
-	$speakers = bsf_get_relevant_speakers($eventId);
-  $moderators = bsf_get_relevant_moderators($eventId);
-  $moderators = isset($moderators) && is_array($moderators) ? $moderators : [];
-  
-	if(!$speakers) return;
-  $speakers = array_diff($speakers, $moderators);
-
-  $speakerNum = count($speakers);
-  $maxSpeakerDisplayNum = 4;
-
-  $html = '<div class="bsf-event-card-speakers">';
-
-  if (!empty($moderators)) {
-    $html .= '<span class="bsf-speaker-group-title">' . __( 'Moderátor:', 'bsf-plugin' ) . '</span>';
-    foreach ($moderators as $moderator) {
-      $html .= '<div class="bsf-speaker-card-compact moderator">';
-      $html .= '<div class="avatar">' . wp_get_attachment_image(carbon_get_post_meta($moderator, 'bsf_avatar'), 'bsf_speaker_avatar_small') . '</div>';
-      $html .= '<div class="bsf-speaker-text">';
-      $html .= '<p class="speaker-name">' . carbon_get_post_meta($moderator, 'bsf_last_name') . ' ' . carbon_get_post_meta($moderator, 'bsf_first_name') . '</p>';
-      $html .= '<p class="speaker-title">' . carbon_get_post_meta($moderator, 'bsf_title') . '</p>';
-      $html .= '</div>';
-      $html .= '<a href="' . get_permalink($moderator) . '" class="bsf-speaker-card-link"></a>';
-      $html .= '</div>';
+    $speakers = bsf_get_relevant_speakers($eventId);
+    $moderators = bsf_get_relevant_moderators($eventId);
+    $moderators = isset($moderators) && is_array($moderators) ? $moderators : [];
+    if (!$speakers && !$moderators) return '';
+    $speakers = array_diff($speakers, $moderators);
+    $speakerNum = count($speakers);
+    $maxSpeakerDisplayNum = 4;
+    $html = '<div class="bsf-event-card-speakers">';
+    // Speakers first
+    $firstFourSpeakers = array_slice($speakers, 0, $maxSpeakerDisplayNum);
+    if (!empty($firstFourSpeakers)) {
+        $html .= '<div class="bsf-speaker-group speakers">';
+        $html .= '<span class="bsf-speaker-group-title">' . esc_html__('Előadók:', 'bsf-plugin') . '</span>';
+        $html .= '<div class="bsf-speaker-list">';
+        foreach ($firstFourSpeakers as $speaker) {
+            $html .= '<div class="bsf-speaker-card-compact">';
+            $html .= '<div class="avatar">' . wp_get_attachment_image(carbon_get_post_meta($speaker, 'bsf_avatar'), 'bsf_speaker_avatar_small') . '</div>';
+            $html .= '<div class="bsf-speaker-text">';
+            $html .= '<p class="speaker-name">' . esc_html(carbon_get_post_meta($speaker, 'bsf_last_name')) . ' ' . esc_html(carbon_get_post_meta($speaker, 'bsf_first_name')) . '</p>';
+            $title = carbon_get_post_meta($speaker, 'bsf_title');
+            $company = carbon_get_post_meta($speaker, 'bsf_company');
+            $company_title = $company;
+            if ($company && $title) {
+              $company_title = $company . ' - ' . $title;
+            } elseif ($title) {
+              $company_title = $title;
+            }
+            $html .= '<p class="speaker-title">' . esc_html($company_title) . '</p>';
+            $html .= '</div>';
+            $html .= '<a href="' . esc_url(get_permalink($speaker)) . '" class="bsf-speaker-card-link"></a>';
+            $html .= '</div>';
+        }
+        $html .= '</div>';
+        $html .= '</div>';
     }
-  }
-
-  /*var_dump($moderatorIds);
-  echo '<br><br>';
-  var_dump($speakers);*/
-
-
-  $firstFourSpeakers = array_slice($speakers, 0, $maxSpeakerDisplayNum);
-
-  if (!empty($firstFourSpeakers)) {
-    $html .= '<span class="bsf-speaker-group-title">' . __( 'Előadók:', 'bsf-plugin' ) . '</span>';
-    foreach ($firstFourSpeakers as $speaker) {
-      $html .= '<div class="bsf-speaker-card-compact">';
-      $html .= '<div class="avatar">' . wp_get_attachment_image(carbon_get_post_meta($speaker, 'bsf_avatar'), 'bsf_speaker_avatar_small') . '</div>';
-      $html .= '<div class="bsf-speaker-text">';
-      $html .= '<p class="speaker-name">' . carbon_get_post_meta($speaker, 'bsf_last_name') . ' ' . carbon_get_post_meta($speaker, 'bsf_first_name') . '</p>';
-      $html .= '<p class="speaker-title">' . carbon_get_post_meta($speaker, 'bsf_title') . '</p>';
-      $html .= '</div>';
-      $html .= '<a href="' . get_permalink($speaker) . '" class="bsf-speaker-card-link"></a>';
-      $html .= '</div>';
+    // Moderators second
+    if (!empty($moderators)) {
+        $html .= '<div class="bsf-speaker-group moderators">';
+        $html .= '<span class="bsf-speaker-group-title">' . esc_html__('Moderátor:', 'bsf-plugin') . '</span>';
+        $html .= '<div class="bsf-speaker-list">';
+        foreach ($moderators as $moderator) {
+            $html .= '<div class="bsf-speaker-card-compact">'; // removed 'moderator' class
+            $html .= '<div class="avatar">' . wp_get_attachment_image(carbon_get_post_meta($moderator, 'bsf_avatar'), 'bsf_speaker_avatar_small') . '</div>';
+            $html .= '<div class="bsf-speaker-text">';
+            $html .= '<p class="speaker-name">' . esc_html(carbon_get_post_meta($moderator, 'bsf_last_name')) . ' ' . esc_html(carbon_get_post_meta($moderator, 'bsf_first_name')) . '</p>';
+            $title = carbon_get_post_meta($moderator, 'bsf_title');
+            $company = carbon_get_post_meta($moderator, 'bsf_company');
+            $company_title = $company;
+            if ($company && $title) {
+              $company_title = $company . ' - ' . $title;
+            } elseif ($title) {
+              $company_title = $title;
+            }
+            $html .= '<p class="speaker-title">' . esc_html($company_title) . '</p>';
+            $html .= '</div>';
+            $html .= '<a href="' . esc_url(get_permalink($moderator)) . '" class="bsf-speaker-card-link"></a>';
+            $html .= '</div>';
+        }
+        $html .= '</div>';
+        $html .= '</div>';
     }
-  }
-
-  if($speakerNum > $maxSpeakerDisplayNum):
-    $queryString = 'admin-ajax.php?action=bsf_get_more_event_speakers';
-    $queryString .= '&eventId=' . $eventId;
-    $queryString .= '&offset=' . $maxSpeakerDisplayNum;
-    $queryString .= '&nonce=' . wp_create_nonce('load_more_speakers');
-  
-    $html .= '<div class="bsf-show-more-speakers bsf-buttons-wrapper" id="more-speakers-button-' . $eventId . '">
-      <span class="bsf-cta-text-link bsf-more-speakers small" 
-        hx-get="' . esc_url(admin_url($queryString)) . '"
-        hx-swap="outerHTML"
-        hx-target="#more-speakers-button-' . $eventId . '"
-        >' .
-        __('További előadók', 'bsf-plugin')
-      . '</span>
-    </div>';
-  endif;
-
-  $html .= '</div>';
-
-  return $html;
+    if ($speakerNum > $maxSpeakerDisplayNum) {
+        $queryString = 'admin-ajax.php?action=bsf_get_more_event_speakers';
+        $queryString .= '&eventId=' . esc_attr($eventId);
+        $queryString .= '&offset=' . esc_attr($maxSpeakerDisplayNum);
+        $queryString .= '&nonce=' . esc_attr(wp_create_nonce('load_more_speakers'));
+        $html .= '<div class="bsf-show-more-speakers bsf-buttons-wrapper" id="more-speakers-button-' . esc_attr($eventId) . '">';
+        $html .= '<span class="bsf-cta-text-link bsf-more-speakers small" 
+            hx-get="' . esc_url(admin_url($queryString)) . '"
+            hx-swap="outerHTML"
+            hx-target="#more-speakers-button-' . esc_attr($eventId) . '"
+            >' . esc_html__('További előadók', 'bsf-plugin') . '</span>';
+        $html .= '</div>';
+    }
+    $html .= '</div>';
+    return $html;
 }
 
 // getting all pages as options in carbon fields select
@@ -502,8 +510,10 @@ function bsf_search_speaker_ids($term) {
      LEFT JOIN {$wpdb->postmeta} fn ON p.ID = fn.post_id AND fn.meta_key = '_bsf_first_name'
      LEFT JOIN {$wpdb->postmeta} ln ON p.ID = ln.post_id AND ln.meta_key = '_bsf_last_name'
      LEFT JOIN {$wpdb->postmeta} ti ON p.ID = ti.post_id AND ti.meta_key = '_bsf_title'
+     LEFT JOIN {$wpdb->postmeta} co ON p.ID = co.post_id AND co.meta_key = '_bsf_company'
      WHERE p.post_type = 'bsf_speaker' AND p.post_status = 'publish'
-       AND (fn.meta_value LIKE %s OR ln.meta_value LIKE %s OR ti.meta_value LIKE %s)",
+       AND (fn.meta_value LIKE %s OR ln.meta_value LIKE %s OR ti.meta_value LIKE %s OR co.meta_value LIKE %s)",
+    $like,
     $like,
     $like,
     $like

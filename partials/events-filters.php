@@ -69,6 +69,23 @@
     ]);
   }
 
+// Get all unique company names from published speakers
+$company_args = array(
+    'post_type'      => 'bsf_speaker',
+    'posts_per_page' => -1,
+    'post_status'    => 'publish',
+    'fields'         => 'ids',
+);
+$company_speaker_ids = get_posts($company_args);
+$companies = [];
+foreach ($company_speaker_ids as $sid) {
+    $company = carbon_get_post_meta($sid, 'bsf_company');
+    if (!empty($company)) {
+        $companies[] = $company;
+    }
+}
+$companies = array_unique($companies);
+sort($companies, SORT_LOCALE_STRING);
 ?>
 <div class="bsf-filter-widget sidebar-filter">
 
@@ -236,6 +253,33 @@
               </div>
             </div>
           <?php endif; ?>
+<?php if(!empty($companies)): ?>
+  <div class="bsf-form-input bsf-dropdown-filter-input" id="bsf-company-dropdown">
+    <button type="button" class="dropdown-filter-label">
+      <?php _e('Cégek', 'bsf-plugin'); ?>
+    </button>
+    <div class="input-list">
+      <div class="input-list-inner-wrapper">
+        <div class="dropdown-search">
+          <input type="text" class="bsf-text-input company-search" placeholder="<?php _e('Keresés...', 'bsf-plugin'); ?>">
+        </div>
+        <?php foreach($companies as $company): ?>
+          <div class="input-line checkbox-line">
+            <label>
+                <?php echo esc_html($company); ?>
+                <input
+                    type="checkbox"
+                    name="companiesArray[]"
+                    value="<?php echo esc_attr($company); ?>"
+                >
+                <span class="checkmark"></span>
+            </label>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </div>
+<?php endif; ?>
           <div class="input-line checkbox-line" id="bsf-past-toggle-line">
             <label>
               <?php _e('Korábbi programok megjelenítése', 'bsf-plugin'); ?>
@@ -348,8 +392,38 @@
           speakerSearchInput.dispatchEvent(new Event('input'));
         }
 
-        // Optionally, trigger HTMX to reload the posts
-        htmx.trigger(form, 'change'); // This will simulate a change event after resetting
+        // Clear company filter checkboxes and search, and show all options
+        const companyDropdown = document.getElementById('bsf-company-dropdown');
+        if (companyDropdown) {
+          // Uncheck all checkboxes
+          companyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+          // Clear search input
+          const companySearch = companyDropdown.querySelector('.company-search');
+          if (companySearch) {
+            companySearch.value = '';
+            companyDropdown.querySelectorAll('.checkbox-line').forEach(line => {
+              line.style.display = '';
+            });
+          }
+          // Optionally close the dropdown (if you want)
+          // const inputList = companyDropdown.querySelector('.input-list');
+          // if (inputList) inputList.style.display = 'none';
+        }
+        // Also trigger a change event on the form to ensure HTMX updates
+        htmx.trigger(form, 'change');
+
+        // Remove all hidden inputs except nonce
+        form.querySelectorAll('input[type="hidden"]').forEach(function(input) {
+          if (!input.name.includes('nonce')) {
+            input.remove();
+          }
+        });
+        // Trigger change event again to apply cleared filters
+        htmx.trigger(form, 'change');
+
     });
 
     
@@ -370,4 +444,18 @@
         }
       });
     });
+
+    // Company dropdown search
+    const companyDropdown = document.getElementById("bsf-company-dropdown");
+    if (companyDropdown) {
+      companyDropdown.addEventListener("input", function(e) {
+        if (e.target.classList.contains("company-search")) {
+          const filter = e.target.value.toLowerCase();
+          companyDropdown.querySelectorAll(".checkbox-line").forEach(line => {
+            const text = line.textContent.toLowerCase();
+            line.style.display = text.includes(filter) ? "" : "none";
+          });
+        }
+      });
+    }
 </script>

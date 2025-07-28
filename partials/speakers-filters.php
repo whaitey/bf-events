@@ -36,7 +36,23 @@
     'order' => 'ASC'
   ) );
 
-
+  // Get all unique company names from published speakers
+  $company_args = array(
+      'post_type'      => 'bsf_speaker',
+      'posts_per_page' => -1,
+      'post_status'    => 'publish',
+      'fields'         => 'ids',
+  );
+  $company_speaker_ids = get_posts($company_args);
+  $companies = [];
+  foreach ($company_speaker_ids as $sid) {
+      $company = carbon_get_post_meta($sid, 'bsf_company');
+      if (!empty($company)) {
+          $companies[] = $company;
+      }
+  }
+  $companies = array_unique($companies);
+  sort($companies, SORT_LOCALE_STRING);
 
 ?>
 <div class="bsf-filter-widget sidebar-filter">
@@ -112,6 +128,15 @@
               </div>
             </div>
           <?php endif; ?>
+
+          <div class="bsf-form-input bsf-company-filter">
+            <select name="company" class="bsf-text-input">
+              <option value=""><?php _e('Cég szűrés...', 'bsf-plugin'); ?></option>
+              <?php foreach ($companies as $company): ?>
+                <option value="<?php echo esc_attr($company); ?>"><?php echo esc_html($company); ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
 
         </div>
       </div>

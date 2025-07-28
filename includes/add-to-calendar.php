@@ -46,12 +46,29 @@ add_action('init', function () {
                 $speakerNames[] = carbon_get_post_meta($sid, 'bsf_last_name') . ' ' . carbon_get_post_meta($sid, 'bsf_first_name');
             }
         }
-
+        // Moderators
+        $moderatorIds = bsf_get_relevant_moderators($event_id);
+        $moderatorNames = [];
+        if ($moderatorIds) {
+            foreach ($moderatorIds as $mid) {
+                $moderatorNames[] = carbon_get_post_meta($mid, 'bsf_last_name') . ' ' . carbon_get_post_meta($mid, 'bsf_first_name');
+            }
+        }
+        // Add each section on a new line, with each speaker/moderator on its own line
         if ($stageInfo) {
-            $description .= "\n" . sprintf(__('Színpad: %s', 'bsf-plugin'), $stageInfo);
+            $description .= "\n" . sprintf(esc_html__('Színpad: %s', 'bsf-plugin'), $stageInfo);
         }
         if ($speakerNames) {
-            $description .= "\n" . sprintf(__('Előadó: %s', 'bsf-plugin'), implode(', ', $speakerNames));
+            $description .= "\n" . esc_html__('Előadók:', 'bsf-plugin');
+            foreach ($speakerNames as $speaker) {
+                $description .= "\n- " . $speaker;
+            }
+        }
+        if ($moderatorNames) {
+            $description .= "\n" . esc_html__('Moderátorok:', 'bsf-plugin');
+            foreach ($moderatorNames as $moderator) {
+                $description .= "\n- " . $moderator;
+            }
         }
 
         $eventTerms = wp_get_post_terms(
@@ -121,26 +138,15 @@ function get_calendar_links($event_id)
     $start_time = carbon_get_post_meta($event_id, 'bsf_starting_time');
     $end_time = carbon_get_post_meta($event_id, 'bsf_ending_time');
     $description = carbon_get_post_meta($event_id, 'bsf_description');
-
-    $stageTerms = wp_get_post_terms(
-        $event_id,
-        'bsf_stage',
-        array('fields' => 'names')
-    );
+    $stageTerms = wp_get_post_terms($event_id, 'bsf_stage', array('fields' => 'names'));
     $stageInfo = '';
     if (isset($stageTerms[0])) {
         $stageInfo = $stageTerms[0];
     }
-
-    $stageLocation = wp_get_post_terms(
-        $event_id,
-        'bsf_event_location',
-        array('fields' => 'names')
-    );
+    $stageLocation = wp_get_post_terms($event_id, 'bsf_event_location', array('fields' => 'names'));
     if ($stageInfo && isset($stageLocation[0])) {
         $stageInfo .= ' (' . $stageLocation[0] . ')';
     }
-
     $speakerIds = bsf_get_relevant_speakers($event_id);
     $speakerNames = [];
     if ($speakerIds) {
@@ -148,12 +154,40 @@ function get_calendar_links($event_id)
             $speakerNames[] = carbon_get_post_meta($sid, 'bsf_last_name') . ' ' . carbon_get_post_meta($sid, 'bsf_first_name');
         }
     }
-
+    // Moderators
+    $moderatorIds = bsf_get_relevant_moderators($event_id);
+    $moderatorNames = [];
+    if ($moderatorIds) {
+        foreach ($moderatorIds as $mid) {
+            $moderatorNames[] = carbon_get_post_meta($mid, 'bsf_last_name') . ' ' . carbon_get_post_meta($mid, 'bsf_first_name');
+        }
+    }
+    // Add each section on a new line, with each speaker/moderator on its own line
+    $description_for_ics = $description;
+    $description_for_google = $description;
     if ($stageInfo) {
-        $description .= "\n" . sprintf(__('Színpad: %s', 'bsf-plugin'), $stageInfo);
+        $description_for_ics .= "\n" . sprintf(__('Színpad: %s', 'bsf-plugin'), $stageInfo);
+        $description_for_google .= "<br/>------------------------<br/>" . sprintf(__('Színpad: %s', 'bsf-plugin'), $stageInfo);
     }
     if ($speakerNames) {
-        $description .= "\n" . sprintf(__('Előadó: %s', 'bsf-plugin'), implode(', ', $speakerNames));
+        $description_for_ics .= "\n" . __('Előadók:', 'bsf-plugin');
+        $description_for_google .= "<br/>------------------------<br/>" . __('Előadók:', 'bsf-plugin');
+        foreach ($speakerNames as $speaker) {
+            $description_for_ics .= "\n- " . $speaker;
+            $description_for_google .= "<br/>- " . $speaker;
+        }
+    }
+    // Add dashed line separator if both speakers and moderators exist
+    if ($speakerNames && $moderatorNames) {
+        $description_for_google .= "<br/>------------------------<br/>";
+    }
+    if ($moderatorNames) {
+        $description_for_ics .= "\n" . __('Moderátorok:', 'bsf-plugin');
+        $description_for_google .= "<br/>" . __('Moderátorok:', 'bsf-plugin');
+        foreach ($moderatorNames as $moderator) {
+            $description_for_ics .= "\n- " . $moderator;
+            $description_for_google .= "<br/>- " . $moderator;
+        }
     }
 
     $eventTerms = wp_get_post_terms(
@@ -193,7 +227,7 @@ function get_calendar_links($event_id)
         "&text=" . urlencode($event->post_title) .
         "&dates=" . $dt_start->format('Ymd\THis') .
         "/" . $dt_end->format('Ymd\THis') .
-        "&details=" . urlencode(strip_tags($description)) .
+        "&details=" . urlencode(strip_tags($description_for_google)) .
         "&location=" . urlencode($location) .
         "&ctz=Europe/Budapest";
 
@@ -204,7 +238,7 @@ function get_calendar_links($event_id)
         "&startdt=" . $dt_start->format('Y-m-d\TH:i:s') .
         "&enddt=" . $dt_end->format('Y-m-d\TH:i:s') .
         "&location=" . urlencode($location) .
-        "&body=" . urlencode(strip_tags($description));
+        "&body=" . urlencode(strip_tags($description_for_ics));
 
     // iCal download link
     $ical_url = add_query_arg('download_ical', $event_id, home_url('/'));
