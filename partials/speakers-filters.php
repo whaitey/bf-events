@@ -140,9 +140,9 @@
 
         </div>
       </div>
-      <a class="bsf-clear-filters bsf-cta-text-link bsf-close small" id="bsf-reset-filters">
+      <button type="button" class="bsf-button small outline-black" id="bsf-clear-all-filters">
         <?php _e('Feltételek törlése', 'bsf-plugin'); ?>
-      </a>
+      </button>
     </div>
   </form>
 </div>
@@ -163,8 +163,8 @@
       e.preventDefault();
     });
 
-    // Reset form and reload page
-    document.getElementById('bsf-reset-filters').addEventListener('click', function(e) {
+    // Clear all filters and reload speakers
+    document.getElementById('bsf-clear-all-filters').addEventListener('click', function(e) {
         e.preventDefault();
         
         // Clear the stored filter state
@@ -172,7 +172,40 @@
             sessionStorage.removeItem('bsfEventFiltersState');
         }
         
-        // Reload the page to show all speakers
-        window.location.reload();
+        // Reset all form fields
+        const form = document.getElementById('bsf-sidebar-filter');
+        if (form) {
+            form.reset();
+            
+            // Clear all checkboxes
+            form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Clear search input
+            const searchInput = form.querySelector('input[name="search"]');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            
+            // Clear company select
+            const companySelect = form.querySelector('select[name="company"]');
+            if (companySelect) {
+                companySelect.value = '';
+            }
+            
+            // Clear stage dropdown
+            const stageDropdown = document.getElementById('bsf-stage-dropdown');
+            if (stageDropdown) {
+                stageDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                });
+            }
+        }
+        
+        // Trigger HTMX to reload speakers with no filters
+        if (typeof htmx !== 'undefined') {
+            htmx.trigger(form, 'change');
+        }
     });
 </script>

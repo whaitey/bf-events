@@ -27,11 +27,24 @@
 </div>
 
 <script>
-    // Reset form and reload page
+    // Clear all filters and reload calendar
     document.getElementById('bsf-reset-stages').addEventListener('click', function(e) {
         e.preventDefault();
         
-        // Reload the page to show all stages
-        window.location.reload();
+        // Reset all form fields
+        const form = document.getElementById('bsf-calendar-filter');
+        if (form) {
+            form.reset();
+            
+            // Clear all checkboxes
+            form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+        
+        // Trigger HTMX to reload calendar with no filters
+        if (typeof htmx !== 'undefined') {
+            htmx.trigger(form, 'change');
+        }
     });
 </script>

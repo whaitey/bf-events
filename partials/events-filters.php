@@ -307,9 +307,9 @@ sort($companies, SORT_LOCALE_STRING);
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
-      <a class="bsf-clear-filters bsf-cta-text-link bsf-close small" id="bsf-reset-filters">
+      <button type="button" class="bsf-button small outline-black" id="bsf-clear-all-filters">
         <?php _e('Feltételek törlése', 'bsf-plugin'); ?>
-      </a>
+      </button>
     </div>
     <?php
       // additional special filter inputs 
@@ -384,8 +384,8 @@ sort($companies, SORT_LOCALE_STRING);
       e.preventDefault();
     });
 
-    // Reset form and reload page
-    document.getElementById('bsf-reset-filters').addEventListener('click', function(e) {
+    // Clear all filters and reload events
+    document.getElementById('bsf-clear-all-filters').addEventListener('click', function(e) {
         e.preventDefault();
         
         // Clear the stored filter state
@@ -393,8 +393,73 @@ sort($companies, SORT_LOCALE_STRING);
             sessionStorage.removeItem('bsfEventFiltersState');
         }
         
-        // Reload the page to show all events
-        window.location.reload();
+        // Reset all form fields
+        const form = document.getElementById('bsf-sidebar-filter');
+        if (form) {
+            form.reset();
+            
+            // Clear all checkboxes
+            form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Clear all radio buttons and set to default
+            form.querySelectorAll('input[type="radio"]').forEach(radio => {
+                if (radio.value === '') {
+                    radio.checked = true;
+                } else {
+                    radio.checked = false;
+                }
+            });
+            
+            // Clear search input
+            const searchInput = form.querySelector('input[name="search"]');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            
+            // Clear company dropdown
+            const companyDropdown = document.getElementById('bsf-company-dropdown');
+            if (companyDropdown) {
+                companyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                });
+                const companySearch = companyDropdown.querySelector('.company-search');
+                if (companySearch) {
+                    companySearch.value = '';
+                    companyDropdown.querySelectorAll('.checkbox-line').forEach(line => {
+                        line.style.display = '';
+                    });
+                }
+            }
+            
+            // Clear speaker dropdown
+            const speakerDropdown = document.getElementById('bsf-speaker-dropdown');
+            if (speakerDropdown) {
+                speakerDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                });
+                const speakerSearch = speakerDropdown.querySelector('.speaker-search');
+                if (speakerSearch) {
+                    speakerSearch.value = '';
+                    speakerDropdown.querySelectorAll('.checkbox-line').forEach(line => {
+                        line.style.display = '';
+                    });
+                }
+            }
+            
+            // Remove all hidden inputs except nonce
+            form.querySelectorAll('input[type="hidden"]').forEach(function(input) {
+                if (!input.name.includes('nonce')) {
+                    input.remove();
+                }
+            });
+        }
+        
+        // Trigger HTMX to reload events with no filters
+        if (typeof htmx !== 'undefined') {
+            htmx.trigger(form, 'change');
+        }
     });
 
     
