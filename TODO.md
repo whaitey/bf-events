@@ -102,9 +102,9 @@
 - [ ] API endpoints for external integrations
 
 ## 📝 Development Notes
-- Current version: 1.3.6
+- Current version: 1.3.7
 - Last major update: Main color customization feature
-- Last bug fix: Banner reset improved with fetch API instead of HTMX
+- Last bug fix: Fixed nonce verification for banner reset AJAX call
 - Next planned version: 1.4.0 (Performance optimizations)
 - GitHub repository: https://github.com/whaitey/bf-events
 

@@ -570,7 +570,7 @@ add_action('wp_ajax_nopriv_bsf_load_banner', 'bsf_load_banner');
 // Reset banner to original Main Event title
 function bsf_reset_banner() {
     // Security checks
-    if (!isset($_GET['nonce']) || !wp_verify_nonce($_GET['nonce'], 'reset_banner')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'reset_banner')) {
         status_header(403);
         die('Invalid nonce');
     }
