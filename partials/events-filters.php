@@ -384,48 +384,17 @@ sort($companies, SORT_LOCALE_STRING);
       e.preventDefault();
     });
 
-    // Reset form and trigger HTMX
-    document.getElementById('bsf-reset-filters').addEventListener('click', function() {
-        // Reset the form fields (uncheck checkboxes)
-        form.reset();
-
-        if (speakerSearchInput) {
-          speakerSearchInput.value = '';
-          speakerSearchInput.dispatchEvent(new Event('input'));
+    // Reset form and reload page
+    document.getElementById('bsf-reset-filters').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Clear the stored filter state
+        if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem('bsfEventFiltersState');
         }
-
-        // Clear company filter checkboxes and search, and show all options
-        const companyDropdown = document.getElementById('bsf-company-dropdown');
-        if (companyDropdown) {
-          // Uncheck all checkboxes
-          companyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            cb.checked = false;
-            cb.dispatchEvent(new Event('change', { bubbles: true }));
-          });
-          // Clear search input
-          const companySearch = companyDropdown.querySelector('.company-search');
-          if (companySearch) {
-            companySearch.value = '';
-            companyDropdown.querySelectorAll('.checkbox-line').forEach(line => {
-              line.style.display = '';
-            });
-          }
-          // Optionally close the dropdown (if you want)
-          // const inputList = companyDropdown.querySelector('.input-list');
-          // if (inputList) inputList.style.display = 'none';
-        }
-        // Also trigger a change event on the form to ensure HTMX updates
-        htmx.trigger(form, 'change');
-
-        // Remove all hidden inputs except nonce
-        form.querySelectorAll('input[type="hidden"]').forEach(function(input) {
-          if (!input.name.includes('nonce')) {
-            input.remove();
-          }
-        });
-        // Trigger change event again to apply cleared filters
-        htmx.trigger(form, 'change');
-
+        
+        // Reload the page to show all events
+        window.location.reload();
     });
 
     

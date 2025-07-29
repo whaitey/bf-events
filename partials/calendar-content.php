@@ -27,12 +27,11 @@
 </div>
 
 <script>
-    // Reset form and trigger HTMX
-    document.getElementById('bsf-reset-stages').addEventListener('click', function() {
-        // Reset the form fields (uncheck checkboxes)
-        document.getElementById('bsf-calendar-filter').reset();
-
-        // Optionally, trigger HTMX to reload the posts
-        htmx.trigger('#bsf-calendar-filter', 'change'); // This will simulate a change event after resetting
+    // Reset form and reload page
+    document.getElementById('bsf-reset-stages').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Reload the page to show all stages
+        window.location.reload();
     });
 </script>

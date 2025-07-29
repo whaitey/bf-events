@@ -163,12 +163,16 @@
       e.preventDefault();
     });
 
-    // Reset form and trigger HTMX
-    document.getElementById('bsf-reset-filters').addEventListener('click', function() {
-        // Reset the form fields (uncheck checkboxes)
-        form.reset();
-
-        // Optionally, trigger HTMX to reload the posts
-        htmx.trigger(form, 'change'); // This will simulate a change event after resetting
+    // Reset form and reload page
+    document.getElementById('bsf-reset-filters').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Clear the stored filter state
+        if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem('bsfEventFiltersState');
+        }
+        
+        // Reload the page to show all speakers
+        window.location.reload();
     });
 </script>
