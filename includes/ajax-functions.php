@@ -566,3 +566,42 @@ function bsf_load_banner() {
 
 add_action('wp_ajax_bsf_load_banner', 'bsf_load_banner');
 add_action('wp_ajax_nopriv_bsf_load_banner', 'bsf_load_banner');
+
+// Reset banner to original Main Event title
+function bsf_reset_banner() {
+    // Security checks
+    if (!isset($_GET['nonce']) || !wp_verify_nonce($_GET['nonce'], 'reset_banner')) {
+        status_header(403);
+        die('Invalid nonce');
+    }
+
+    if (!defined('DOING_AJAX') || !DOING_AJAX) {
+        status_header(403);
+        die('Invalid request');
+    }
+
+    // Get the main events page ID
+    $mainEventPageId = carbon_get_theme_option('bsf_main_event_page');
+    
+    if (!$mainEventPageId) {
+        status_header(204);
+        die();
+    }
+
+    // Get the page title as the default banner title
+    $pageTitle = get_the_title($mainEventPageId);
+    
+    // Prepare default banner data
+    $shortcodeData = [
+        'title' => $pageTitle,
+        'description' => '',
+        'logos' => null
+    ];
+
+    // Directly include the template (HTMX expects raw HTML)
+    include BSF_PLUGIN_DIR . 'partials/events-banner.php';
+    die();
+}
+
+add_action('wp_ajax_bsf_reset_banner', 'bsf_reset_banner');
+add_action('wp_ajax_nopriv_bsf_reset_banner', 'bsf_reset_banner');

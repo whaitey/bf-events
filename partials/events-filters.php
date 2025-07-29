@@ -489,6 +489,13 @@ sort($companies, SORT_LOCALE_STRING);
                 if (typeof htmx !== 'undefined') {
                     htmx.trigger(form, 'change');
                 }
+                
+                // Reset banner to original Main Event title
+                const resetBannerUrl = '<?php echo esc_url(admin_url('admin-ajax.php?action=bsf_reset_banner&nonce=' . wp_create_nonce('reset_banner'))); ?>';
+                const bannerElement = document.getElementById('main-events-banner');
+                if (bannerElement && typeof htmx !== 'undefined') {
+                    htmx.ajax('GET', resetBannerUrl, {target: '#main-events-banner', swap: 'innerHTML'});
+                }
             }
         });
     }
