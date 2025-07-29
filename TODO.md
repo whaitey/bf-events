@@ -102,9 +102,9 @@
 - [ ] API endpoints for external integrations
 
 ## 📝 Development Notes
-- Current version: 1.3.2
+- Current version: 1.3.3
 - Last major update: Main color customization feature
-- Last bug fix: Reset filters functionality simplified
+- Last bug fix: Reset filters button replaced with AJAX-based solution
 - Next planned version: 1.4.0 (Performance optimizations)
 - GitHub repository: https://github.com/whaitey/bf-events
 
