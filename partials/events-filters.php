@@ -329,7 +329,7 @@ sort($companies, SORT_LOCALE_STRING);
 <script>
     // prevent submit
     const form = document.getElementById('bsf-sidebar-filter');
-    const searchInput = form.querySelector('input[name="search"]');
+    const searchInput = form ? form.querySelector('input[name="search"]') : null;
     const eventNameGroup = document.getElementById('bsf-sub-event-name-dropdown');
     const stageGroup = document.getElementById('bsf-stage-dropdown');
     
@@ -344,6 +344,7 @@ sort($companies, SORT_LOCALE_STRING);
 
     // Set up mutual exclusivity
     function setupExclusivity(groupToWatch, groupToReset) {
+      if (!groupToWatch || !groupToReset) return; // Add null check
       groupToWatch.querySelectorAll('input[type="radio"]').forEach(radio => {
         radio.addEventListener('change', function() {
           if (this.value !== '') { // Only reset if non-"All" option selected
@@ -355,9 +356,11 @@ sort($companies, SORT_LOCALE_STRING);
       });
     }
 
-    // Set up bidirectional exclusivity
-    setupExclusivity(eventNameGroup, stageGroup);
-    setupExclusivity(stageGroup, eventNameGroup);
+    // Set up bidirectional exclusivity (only if both elements exist)
+    if (eventNameGroup && stageGroup) {
+      setupExclusivity(eventNameGroup, stageGroup);
+      setupExclusivity(stageGroup, eventNameGroup);
+    }
 
     const speakerDropdown = document.getElementById("bsf-speaker-dropdown");
       if (speakerDropdown) {
@@ -372,95 +375,123 @@ sort($companies, SORT_LOCALE_STRING);
         });
       }
 
-    searchInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault(); // prevent native form submit
-        htmx.trigger(form, 'change');
-      }
-    });
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // prevent native form submit
+                htmx.trigger(form, 'change');
+            }
+        });
+    }
 
     // Extra: prevent form submission as a final fallback
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-    });
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+        });
+    }
 
     // Clear all filters and reload events
-    document.getElementById('bsf-clear-all-filters').addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // Clear the stored filter state
-        if (typeof sessionStorage !== 'undefined') {
-            sessionStorage.removeItem('bsfEventFiltersState');
-        }
-        
-        // Reset all form fields
-        const form = document.getElementById('bsf-sidebar-filter');
-        if (form) {
-            form.reset();
+    const clearFiltersButton = document.getElementById('bsf-clear-all-filters');
+    if (clearFiltersButton) {
+        clearFiltersButton.addEventListener('click', function(e) {
+            e.preventDefault();
             
-            // Clear all checkboxes
-            form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-            
-            // Clear all radio buttons and set to default
-            form.querySelectorAll('input[type="radio"]').forEach(radio => {
-                if (radio.value === '') {
-                    radio.checked = true;
-                } else {
-                    radio.checked = false;
-                }
-            });
-            
-            // Clear search input
-            const searchInput = form.querySelector('input[name="search"]');
-            if (searchInput) {
-                searchInput.value = '';
+            // Clear the stored filter state
+            if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.removeItem('bsfEventFiltersState');
             }
             
-            // Clear company dropdown
-            const companyDropdown = document.getElementById('bsf-company-dropdown');
-            if (companyDropdown) {
-                companyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                    cb.checked = false;
-                });
-                const companySearch = companyDropdown.querySelector('.company-search');
-                if (companySearch) {
-                    companySearch.value = '';
-                    companyDropdown.querySelectorAll('.checkbox-line').forEach(line => {
-                        line.style.display = '';
+            // Reset all form fields
+            const form = document.getElementById('bsf-sidebar-filter');
+            if (form) {
+                form.reset();
+                
+                // Clear all checkboxes
+                const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+                if (checkboxes) {
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = false;
                     });
                 }
-            }
-            
-            // Clear speaker dropdown
-            const speakerDropdown = document.getElementById('bsf-speaker-dropdown');
-            if (speakerDropdown) {
-                speakerDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                    cb.checked = false;
-                });
-                const speakerSearch = speakerDropdown.querySelector('.speaker-search');
-                if (speakerSearch) {
-                    speakerSearch.value = '';
-                    speakerDropdown.querySelectorAll('.checkbox-line').forEach(line => {
-                        line.style.display = '';
+                
+                // Clear all radio buttons and set to default
+                const radios = form.querySelectorAll('input[type="radio"]');
+                if (radios) {
+                    radios.forEach(radio => {
+                        if (radio.value === '') {
+                            radio.checked = true;
+                        } else {
+                            radio.checked = false;
+                        }
                     });
                 }
-            }
-            
-            // Remove all hidden inputs except nonce
-            form.querySelectorAll('input[type="hidden"]').forEach(function(input) {
-                if (!input.name.includes('nonce')) {
-                    input.remove();
+                
+                // Clear search input
+                const searchInput = form.querySelector('input[name="search"]');
+                if (searchInput) {
+                    searchInput.value = '';
                 }
-            });
-        }
-        
-        // Trigger HTMX to reload events with no filters
-        if (typeof htmx !== 'undefined') {
-            htmx.trigger(form, 'change');
-        }
-    });
+                
+                // Clear company dropdown
+                const companyDropdown = document.getElementById('bsf-company-dropdown');
+                if (companyDropdown) {
+                    const companyCheckboxes = companyDropdown.querySelectorAll('input[type="checkbox"]');
+                    if (companyCheckboxes) {
+                        companyCheckboxes.forEach(cb => {
+                            cb.checked = false;
+                        });
+                    }
+                    const companySearch = companyDropdown.querySelector('.company-search');
+                    if (companySearch) {
+                        companySearch.value = '';
+                        const companyLines = companyDropdown.querySelectorAll('.checkbox-line');
+                        if (companyLines) {
+                            companyLines.forEach(line => {
+                                line.style.display = '';
+                            });
+                        }
+                    }
+                }
+                
+                // Clear speaker dropdown
+                const speakerDropdown = document.getElementById('bsf-speaker-dropdown');
+                if (speakerDropdown) {
+                    const speakerCheckboxes = speakerDropdown.querySelectorAll('input[type="checkbox"]');
+                    if (speakerCheckboxes) {
+                        speakerCheckboxes.forEach(cb => {
+                            cb.checked = false;
+                        });
+                    }
+                    const speakerSearch = speakerDropdown.querySelector('.speaker-search');
+                    if (speakerSearch) {
+                        speakerSearch.value = '';
+                        const speakerLines = speakerDropdown.querySelectorAll('.checkbox-line');
+                        if (speakerLines) {
+                            speakerLines.forEach(line => {
+                                line.style.display = '';
+                            });
+                        }
+                    }
+                }
+                
+                // Remove all hidden inputs except nonce
+                const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+                if (hiddenInputs) {
+                    hiddenInputs.forEach(function(input) {
+                        if (!input.name.includes('nonce')) {
+                            input.remove();
+                        }
+                    });
+                }
+                
+                // Trigger HTMX to reload events with no filters
+                if (typeof htmx !== 'undefined') {
+                    htmx.trigger(form, 'change');
+                }
+            }
+        });
+    }
 
     
 
