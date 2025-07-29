@@ -14,6 +14,7 @@
 - [x] Calendar view functionality
 - [x] Search functionality
 - [x] Company and speaker filtering
+- [x] **Main color customization** - Easy way to change the main theme color through admin settings
 
 ## 🔧 Bug Fixes & Improvements ✅
 - [x] Fixed Speaker page template PHP syntax error
@@ -69,6 +70,7 @@
 
 ### 🎨 Low Priority
 - [ ] **UI/UX Enhancements**
+  - [x] **Main color customization** - Easy way to change the main theme color through admin settings
   - [ ] Dark mode support
   - [ ] Customizable event card layouts
   - [ ] Animated transitions
@@ -100,9 +102,9 @@
 - [ ] API endpoints for external integrations
 
 ## 📝 Development Notes
-- Current version: 1.2.0
-- Last major update: Admin-controlled filter visibility
-- Next planned version: 1.3.0 (Performance optimizations)
+- Current version: 1.3.0
+- Last major update: Main color customization feature
+- Next planned version: 1.4.0 (Performance optimizations)
 - GitHub repository: https://github.com/whaitey/bf-events
 
 ---

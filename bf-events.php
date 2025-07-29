@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BF Events
  * Description: Teljes körű eseménykezelő rendszer WordPress plugin
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: ZeusWeb
  * Plugin URI: https://github.com/whaitey/bf-events
  * GitHub Plugin URI: https://github.com/whaitey/bf-events
@@ -53,6 +53,42 @@ function bsf_events_enqueue_assets() {
 }
 add_action('wp_enqueue_scripts', 'bsf_events_enqueue_assets');
 
+// Generate and enqueue dynamic CSS with custom colors
+function bsf_events_enqueue_dynamic_css() {
+    $main_color = carbon_get_theme_option('bsf_main_color');
+    
+    // If no custom color is set, use the default
+    if (empty($main_color)) {
+        $main_color = '#2F24A1';
+    }
+    
+    // Generate darker and lighter variants of the main color
+    $main_color_rgb = sscanf($main_color, "#%02x%02x%02x");
+    $darker_color = sprintf("#%02x%02x%02x", 
+        max(0, $main_color_rgb[0] - 30), 
+        max(0, $main_color_rgb[1] - 30), 
+        max(0, $main_color_rgb[2] - 30)
+    );
+    
+    $lighter_color = sprintf("#%02x%02x%02x", 
+        min(255, $main_color_rgb[0] + 30), 
+        min(255, $main_color_rgb[1] + 30), 
+        min(255, $main_color_rgb[2] + 30)
+    );
+    
+    // Generate CSS with custom color variables
+    $custom_css = "
+        :root {
+            --c-indigo: {$main_color};
+            --c-purple-3: {$darker_color};
+            --c-purple-2: {$lighter_color};
+        }
+    ";
+    
+    // Enqueue the dynamic CSS
+    wp_add_inline_style('bsf-events-style', $custom_css);
+}
+add_action('wp_enqueue_scripts', 'bsf_events_enqueue_dynamic_css', 20);
 
 
 // Include functions, filters, menus, etc
