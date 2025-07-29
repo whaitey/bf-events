@@ -580,26 +580,9 @@ function bsf_reset_banner() {
         die('Invalid request');
     }
 
-    // Get the main events page ID
-    $mainEventPageId = carbon_get_theme_option('bsf_main_event_page');
-    
-    if (!$mainEventPageId) {
-        status_header(204);
-        die();
-    }
-
-    // Get the page title as the default banner title
-    $pageTitle = get_the_title($mainEventPageId);
-    
-    // Prepare default banner data
-    $shortcodeData = [
-        'title' => $pageTitle,
-        'description' => '',
-        'logos' => null
-    ];
-
-    // Directly include the template (HTMX expects raw HTML)
-    include BSF_PLUGIN_DIR . 'partials/events-banner.php';
+    // Return HTTP 204 (No Content) - same as when no filters are applied
+    // This tells the frontend to ignore the response and keep the original banner
+    status_header(204);
     die();
 }
 

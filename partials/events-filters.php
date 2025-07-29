@@ -485,32 +485,8 @@ sort($companies, SORT_LOCALE_STRING);
                     });
                 }
                 
-                // Trigger HTMX to reload events with no filters
-                if (typeof htmx !== 'undefined') {
-                    htmx.trigger(form, 'change');
-                }
-                
-                // Reset banner to original Main Event title using fetch
-                const resetBannerUrl = '<?php echo esc_url(admin_url('admin-ajax.php?action=bsf_reset_banner')); ?>';
-                const bannerElement = document.getElementById('main-events-banner');
-                if (bannerElement) {
-                    const formData = new FormData();
-                    formData.append('nonce', '<?php echo wp_create_nonce('reset_banner'); ?>');
-                    
-                    fetch(resetBannerUrl, {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.text())
-                    .then(html => {
-                        if (html && html.trim() !== '') {
-                            bannerElement.innerHTML = html;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error resetting banner:', error);
-                    });
-                }
+                // Reload the page to restore everything to original state
+                window.location.reload();
             }
         });
     }
