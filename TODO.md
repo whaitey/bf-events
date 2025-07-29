@@ -102,8 +102,9 @@
 - [ ] API endpoints for external integrations
 
 ## 📝 Development Notes
-- Current version: 1.3.0
+- Current version: 1.3.1
 - Last major update: Main color customization feature
+- Last bug fix: Calendar modal popup interference fix
 - Next planned version: 1.4.0 (Performance optimizations)
 - GitHub repository: https://github.com/whaitey/bf-events
 
