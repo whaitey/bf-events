@@ -125,6 +125,9 @@ add_action('carbon_fields_register_fields', function () {
             ->set_default_value('#2F24A1')
             ->set_help_text(__('Ez a szín lesz használva a gombok, kiemelések és egyéb elemek színezésére', 'bsf_plugin')),
             
+            Field::make( 'image', 'bsf_banner_background', __('Banner háttérkép', 'bsf_plugin'))
+            ->set_help_text(__('Ez a kép lesz megjelenítve a banner háttérében', 'bsf_plugin')),
+            
         ) )
       ;
 });

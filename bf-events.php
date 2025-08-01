@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BF Events
  * Description: Teljes körű eseménykezelő rendszer WordPress plugin
- * Version: 1.3.8
+ * Version: 1.3.9
  * Author: ZeusWeb
  * Plugin URI: https://github.com/whaitey/bf-events
  * GitHub Plugin URI: https://github.com/whaitey/bf-events
@@ -76,6 +76,21 @@ function bsf_events_enqueue_dynamic_css() {
         min(255, $main_color_rgb[2] + 30)
     );
     
+    // Get banner background image
+    $banner_background = carbon_get_theme_option('bsf_banner_background');
+    $banner_bg_css = '';
+    
+    if (!empty($banner_background)) {
+        $banner_bg_css = "
+            .bsf-page-banner-outer-wrapper {
+                background-image: url('" . wp_get_attachment_image_url($banner_background, 'full') . "');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+        ";
+    }
+    
     // Generate CSS with custom color variables
     $custom_css = "
         :root {
@@ -83,6 +98,7 @@ function bsf_events_enqueue_dynamic_css() {
             --c-purple-3: {$darker_color};
             --c-purple-2: {$lighter_color};
         }
+        {$banner_bg_css}
     ";
     
     // Enqueue the dynamic CSS
@@ -102,6 +118,17 @@ require_once BSF_PLUGIN_DIR . 'includes/helper-functions.php';
 require_once BSF_PLUGIN_DIR . 'includes/ajax-functions.php';
 require_once BSF_PLUGIN_DIR . 'includes/calendar-functions.php';
 require_once BSF_PLUGIN_DIR . 'includes/add-to-calendar.php';
+
+// Flush rewrite rules on plugin activation
+register_activation_hook(__FILE__, 'bsf_flush_rewrite_rules');
+
+// Flush rewrite rules function
+function bsf_flush_rewrite_rules() {
+    // Register post types first
+    bsf_register_post_types();
+    // Flush rewrite rules
+    flush_rewrite_rules();
+}
 
 // thumbnail sizes
 
