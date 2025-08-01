@@ -16,7 +16,7 @@ function bsf_register_post_types(){
     'menu_position'  => null,
     'show_in_menu' => 'bsf-events-main-page',
     'supports'      =>array('title'),
-    'rewrite'       =>array('slug' => 'bsf_event')
+    'rewrite'       => array('slug' => 'bsf_event')
   );
 
   register_post_type('bsf_event', $event_args);
@@ -32,7 +32,7 @@ function bsf_register_post_types(){
     'menu_position'  => null,
     'show_in_menu' => 'bsf-events-main-page',
     'supports'      =>array('title', 'thumbnail'),
-    'rewrite'       =>array('slug' => 'bsf_speaker')
+    'rewrite'       => array('slug' => 'bsf_speaker')
   );
 
   register_post_type('bsf_speaker', $speaker_args);
