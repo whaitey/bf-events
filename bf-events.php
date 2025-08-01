@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BF Events
  * Description: Teljes körű eseménykezelő rendszer WordPress plugin
- * Version: 1.4.2
+ * Version: 1.4.3
  * Author: ZeusWeb
  * Plugin URI: https://github.com/whaitey/bf-events
  * GitHub Plugin URI: https://github.com/whaitey/bf-events
@@ -132,6 +132,17 @@ function bsf_flush_rewrite_rules() {
 
 // Add AJAX actions for image regeneration
 add_action('wp_ajax_bsf_regenerate_single_image', 'bsf_handle_single_image_regeneration');
+
+// Improve image quality for speaker images
+add_filter('wp_editor_set_quality', 'bsf_improve_speaker_image_quality', 10, 2);
+
+function bsf_improve_speaker_image_quality($quality, $mime_type) {
+    // Set higher quality for JPEG images (speaker photos are usually JPEG)
+    if ($mime_type === 'image/jpeg') {
+        return 95; // Higher quality (default is usually 82)
+    }
+    return $quality;
+}
 
 // thumbnail sizes
 

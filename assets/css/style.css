@@ -493,15 +493,18 @@
   cursor: pointer;
 }
 
-#bsf-speaker-dropdown .input-list-inner-wrapper {
+#bsf-speaker-dropdown .input-list-inner-wrapper,
+#bsf-company-dropdown .input-list-inner-wrapper {
   max-height: 14rem;
   overflow-y: auto;
 }
-#bsf-speaker-dropdown .input-line.search-line {
+#bsf-speaker-dropdown .input-line.search-line,
+#bsf-company-dropdown .input-line.search-line {
   border-bottom: 1px solid var(--c-grey-2);
   padding-bottom: var(--ps-tiny);
 }
-#bsf-speaker-dropdown .speaker-search {
+#bsf-speaker-dropdown .speaker-search,
+#bsf-company-dropdown .company-search {
   width: 100%;
 }
 
