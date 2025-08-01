@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BF Events
  * Description: Teljes körű eseménykezelő rendszer WordPress plugin
- * Version: 1.3.9
+ * Version: 1.4.0
  * Author: ZeusWeb
  * Plugin URI: https://github.com/whaitey/bf-events
  * GitHub Plugin URI: https://github.com/whaitey/bf-events
@@ -122,6 +122,9 @@ require_once BSF_PLUGIN_DIR . 'includes/add-to-calendar.php';
 // Flush rewrite rules on plugin activation
 register_activation_hook(__FILE__, 'bsf_flush_rewrite_rules');
 
+// Regenerate thumbnails on plugin update (when version changes)
+add_action('init', 'bsf_check_version_and_regenerate_thumbnails');
+
 // Flush rewrite rules function
 function bsf_flush_rewrite_rules() {
     // Register post types first
@@ -130,10 +133,45 @@ function bsf_flush_rewrite_rules() {
     flush_rewrite_rules();
 }
 
+// Check version and regenerate thumbnails if needed
+function bsf_check_version_and_regenerate_thumbnails() {
+    $current_version = '1.4.0';
+    $stored_version = get_option('bsf_plugin_version', '1.0.0');
+    
+    if (version_compare($stored_version, $current_version, '<')) {
+        // Version has been updated, regenerate thumbnails
+        bsf_regenerate_speaker_thumbnails();
+        update_option('bsf_plugin_version', $current_version);
+    }
+}
+
+// Regenerate thumbnails for better image quality
+function bsf_regenerate_speaker_thumbnails() {
+    // Get all speaker posts
+    $speakers = get_posts(array(
+        'post_type' => 'bsf_speaker',
+        'numberposts' => -1,
+        'post_status' => 'publish'
+    ));
+    
+    foreach ($speakers as $speaker) {
+        $avatar_id = carbon_get_post_meta($speaker->ID, 'bsf_avatar');
+        if ($avatar_id) {
+            // Regenerate thumbnails for this image
+            if (function_exists('wp_generate_attachment_metadata')) {
+                $attachment_data = wp_get_attachment_metadata($avatar_id);
+                if ($attachment_data) {
+                    wp_update_attachment_metadata($avatar_id, wp_generate_attachment_metadata($avatar_id, get_attached_file($avatar_id)));
+                }
+            }
+        }
+    }
+}
+
 // thumbnail sizes
 
 add_image_size( 'bsf_speaker_avatar_small', 58, 58, true );
 add_image_size( 'bsf_events_banner_logo', 150, 70, true );
-add_image_size( 'bsf_speakers_list_avatar', 272, 272, true );
+add_image_size( 'bsf_speakers_list_avatar', 400, 400, true );
 add_image_size( 'bsf_speakers_single_avatar', 320, 320, true );
 
