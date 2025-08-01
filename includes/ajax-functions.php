@@ -361,7 +361,7 @@ function bsf_filter_speakers() {
   $stages = $_POST['stagesArray'];
   $page = isset($_POST['currentpage']) ? intval($_POST['currentpage']) : 1;
   $nextPage = $page + 1;
-  $company = isset($_POST['company']) ? sanitize_text_field($_POST['company']) : '';
+  $companies = isset($_POST['companiesArray']) ? $_POST['companiesArray'] : array();
 
   $taxquery = [];
 
@@ -419,12 +419,18 @@ function bsf_filter_speakers() {
   $meta_query = [
     'relation' => 'AND',
   ];
-  if (!empty($company)) {
-    $meta_query[] = [
-      'key' => 'bsf_company',
-      'value' => $company,
-      'compare' => 'LIKE',
+  if (!empty($companies)) {
+    $company_meta_query = [
+      'relation' => 'OR',
     ];
+    foreach ($companies as $company) {
+      $company_meta_query[] = [
+        'key' => 'bsf_company',
+        'value' => sanitize_text_field($company),
+        'compare' => 'LIKE',
+      ];
+    }
+    $meta_query[] = $company_meta_query;
   }
 
   $speakersQuery = new WP_Query([

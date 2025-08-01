@@ -129,14 +129,33 @@
             </div>
           <?php endif; ?>
 
-          <div class="bsf-form-input bsf-company-filter">
-            <select name="company" class="bsf-text-input">
-              <option value=""><?php _e('Cég szűrés...', 'bsf-plugin'); ?></option>
-              <?php foreach ($companies as $company): ?>
-                <option value="<?php echo esc_attr($company); ?>"><?php echo esc_html($company); ?></option>
-              <?php endforeach; ?>
-            </select>
-          </div>
+          <?php if(!empty($companies)): ?>
+            <div class="bsf-form-input bsf-dropdown-filter-input" id="bsf-company-dropdown">
+              <button type="button" class="dropdown-filter-label">
+                <?php _e('Cégek', 'bsf-plugin'); ?>
+              </button>
+              <div class="input-list">
+                <div class="input-list-inner-wrapper">
+                  <div class="dropdown-search">
+                    <input type="text" class="bsf-text-input company-search" placeholder="<?php _e('Keresés...', 'bsf-plugin'); ?>">
+                  </div>
+                  <?php foreach($companies as $company): ?>
+                    <div class="input-line checkbox-line">
+                      <label>
+                          <?php echo esc_html($company); ?>
+                          <input
+                              type="checkbox"
+                              name="companiesArray[]"
+                              value="<?php echo esc_attr($company); ?>"
+                          >
+                          <span class="checkmark"></span>
+                      </label>
+                  </div>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            </div>
+          <?php endif; ?>
 
         </div>
       </div>
@@ -188,10 +207,12 @@
                 searchInput.value = '';
             }
             
-            // Clear company select
-            const companySelect = form.querySelector('select[name="company"]');
-            if (companySelect) {
-                companySelect.value = '';
+            // Clear company dropdown
+            const companyDropdown = document.getElementById('bsf-company-dropdown');
+            if (companyDropdown) {
+                companyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                });
             }
             
             // Clear stage dropdown
@@ -208,4 +229,18 @@
             htmx.trigger(form, 'change');
         }
     });
+
+    // Company dropdown search
+    const companyDropdown = document.getElementById("bsf-company-dropdown");
+    if (companyDropdown) {
+      companyDropdown.addEventListener("input", function(e) {
+        if (e.target.classList.contains("company-search")) {
+          const filter = e.target.value.toLowerCase();
+          companyDropdown.querySelectorAll(".checkbox-line").forEach(line => {
+            const text = line.textContent.toLowerCase();
+            line.style.display = text.includes(filter) ? "" : "none";
+          });
+        }
+      });
+    }
 </script>

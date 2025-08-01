@@ -102,10 +102,10 @@
 - [ ] API endpoints for external integrations
 
 ## 📝 Development Notes
-- Current version: 1.4.3
+- Current version: 1.4.4
 - Last major update: Added manual image regeneration tool
-- Last bug fix: Fixed company filter scrolling and improved image quality
-- Next planned version: 1.4.4 (Performance optimizations)
+- Last bug fix: Unified company filter format across all shortcodes
+- Next planned version: 1.4.5 (Performance optimizations)
 - GitHub repository: https://github.com/whaitey/bf-events
 
 ---
