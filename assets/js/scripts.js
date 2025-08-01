@@ -106,6 +106,12 @@ document.addEventListener("DOMContentLoaded", function () {
       return; // Don't hide past events on speaker pages
     }
 
+    // Check if we're on a calendar page - if so, don't hide past events
+    const isCalendarPage = document.querySelector('.bsf-calendar-content-outer-wrapper');
+    if (isCalendarPage) {
+      return; // Don't hide past events on calendar pages
+    }
+
     const showPast = pastCheckbox && pastCheckbox.checked;
     const now = new Date();
     document.querySelectorAll(".bsf-event-card").forEach(card => {

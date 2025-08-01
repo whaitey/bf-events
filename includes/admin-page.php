@@ -120,5 +120,11 @@ add_action('carbon_fields_register_fields', function () {
             ->set_help_text(__('Bekapcsolja vagy kikapcsolja a korábbi programok szűrőt a frontend oldalon', 'bsf_plugin')),
             
         ) )
+      ->add_tab( __('Megjelenés', 'bsf_plugin'), array(
+            Field::make( 'color', 'bsf_main_color', __('Fő szín', 'bsf_plugin'))
+            ->set_default_value('#2F24A1')
+            ->set_help_text(__('Ez a szín lesz használva a gombok, kiemelések és egyéb elemek színezésére', 'bsf_plugin')),
+            
+        ) )
       ;
 });

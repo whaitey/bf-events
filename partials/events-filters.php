@@ -307,9 +307,9 @@ sort($companies, SORT_LOCALE_STRING);
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
-      <a class="bsf-clear-filters bsf-cta-text-link bsf-close small" id="bsf-reset-filters">
+      <button type="button" class="bsf-button small outline-black" id="bsf-clear-all-filters">
         <?php _e('Feltételek törlése', 'bsf-plugin'); ?>
-      </a>
+      </button>
     </div>
     <?php
       // additional special filter inputs 
@@ -329,7 +329,7 @@ sort($companies, SORT_LOCALE_STRING);
 <script>
     // prevent submit
     const form = document.getElementById('bsf-sidebar-filter');
-    const searchInput = form.querySelector('input[name="search"]');
+    const searchInput = form ? form.querySelector('input[name="search"]') : null;
     const eventNameGroup = document.getElementById('bsf-sub-event-name-dropdown');
     const stageGroup = document.getElementById('bsf-stage-dropdown');
     
@@ -344,6 +344,7 @@ sort($companies, SORT_LOCALE_STRING);
 
     // Set up mutual exclusivity
     function setupExclusivity(groupToWatch, groupToReset) {
+      if (!groupToWatch || !groupToReset) return; // Add null check
       groupToWatch.querySelectorAll('input[type="radio"]').forEach(radio => {
         radio.addEventListener('change', function() {
           if (this.value !== '') { // Only reset if non-"All" option selected
@@ -355,9 +356,11 @@ sort($companies, SORT_LOCALE_STRING);
       });
     }
 
-    // Set up bidirectional exclusivity
-    setupExclusivity(eventNameGroup, stageGroup);
-    setupExclusivity(stageGroup, eventNameGroup);
+    // Set up bidirectional exclusivity (only if both elements exist)
+    if (eventNameGroup && stageGroup) {
+      setupExclusivity(eventNameGroup, stageGroup);
+      setupExclusivity(stageGroup, eventNameGroup);
+    }
 
     const speakerDropdown = document.getElementById("bsf-speaker-dropdown");
       if (speakerDropdown) {
@@ -372,61 +375,121 @@ sort($companies, SORT_LOCALE_STRING);
         });
       }
 
-    searchInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault(); // prevent native form submit
-        htmx.trigger(form, 'change');
-      }
-    });
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // prevent native form submit
+                htmx.trigger(form, 'change');
+            }
+        });
+    }
 
     // Extra: prevent form submission as a final fallback
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-    });
-
-    // Reset form and trigger HTMX
-    document.getElementById('bsf-reset-filters').addEventListener('click', function() {
-        // Reset the form fields (uncheck checkboxes)
-        form.reset();
-
-        if (speakerSearchInput) {
-          speakerSearchInput.value = '';
-          speakerSearchInput.dispatchEvent(new Event('input'));
-        }
-
-        // Clear company filter checkboxes and search, and show all options
-        const companyDropdown = document.getElementById('bsf-company-dropdown');
-        if (companyDropdown) {
-          // Uncheck all checkboxes
-          companyDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            cb.checked = false;
-            cb.dispatchEvent(new Event('change', { bubbles: true }));
-          });
-          // Clear search input
-          const companySearch = companyDropdown.querySelector('.company-search');
-          if (companySearch) {
-            companySearch.value = '';
-            companyDropdown.querySelectorAll('.checkbox-line').forEach(line => {
-              line.style.display = '';
-            });
-          }
-          // Optionally close the dropdown (if you want)
-          // const inputList = companyDropdown.querySelector('.input-list');
-          // if (inputList) inputList.style.display = 'none';
-        }
-        // Also trigger a change event on the form to ensure HTMX updates
-        htmx.trigger(form, 'change');
-
-        // Remove all hidden inputs except nonce
-        form.querySelectorAll('input[type="hidden"]').forEach(function(input) {
-          if (!input.name.includes('nonce')) {
-            input.remove();
-          }
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
         });
-        // Trigger change event again to apply cleared filters
-        htmx.trigger(form, 'change');
+    }
 
-    });
+    // Clear all filters and reload events
+    const clearFiltersButton = document.getElementById('bsf-clear-all-filters');
+    if (clearFiltersButton) {
+        clearFiltersButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Clear the stored filter state
+            if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.removeItem('bsfEventFiltersState');
+            }
+            
+            // Reset all form fields
+            const form = document.getElementById('bsf-sidebar-filter');
+            if (form) {
+                form.reset();
+                
+                // Clear all checkboxes
+                const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+                if (checkboxes) {
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                }
+                
+                // Clear all radio buttons and set to default
+                const radios = form.querySelectorAll('input[type="radio"]');
+                if (radios) {
+                    radios.forEach(radio => {
+                        if (radio.value === '') {
+                            radio.checked = true;
+                        } else {
+                            radio.checked = false;
+                        }
+                    });
+                }
+                
+                // Clear search input
+                const searchInput = form.querySelector('input[name="search"]');
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+                
+                // Clear company dropdown
+                const companyDropdown = document.getElementById('bsf-company-dropdown');
+                if (companyDropdown) {
+                    const companyCheckboxes = companyDropdown.querySelectorAll('input[type="checkbox"]');
+                    if (companyCheckboxes) {
+                        companyCheckboxes.forEach(cb => {
+                            cb.checked = false;
+                        });
+                    }
+                    const companySearch = companyDropdown.querySelector('.company-search');
+                    if (companySearch) {
+                        companySearch.value = '';
+                        const companyLines = companyDropdown.querySelectorAll('.checkbox-line');
+                        if (companyLines) {
+                            companyLines.forEach(line => {
+                                line.style.display = '';
+                            });
+                        }
+                    }
+                }
+                
+                // Clear speaker dropdown
+                const speakerDropdown = document.getElementById('bsf-speaker-dropdown');
+                if (speakerDropdown) {
+                    const speakerCheckboxes = speakerDropdown.querySelectorAll('input[type="checkbox"]');
+                    if (speakerCheckboxes) {
+                        speakerCheckboxes.forEach(cb => {
+                            cb.checked = false;
+                        });
+                    }
+                    const speakerSearch = speakerDropdown.querySelector('.speaker-search');
+                    if (speakerSearch) {
+                        speakerSearch.value = '';
+                        const speakerLines = speakerDropdown.querySelectorAll('.checkbox-line');
+                        if (speakerLines) {
+                            speakerLines.forEach(line => {
+                                line.style.display = '';
+                            });
+                        }
+                    }
+                }
+                
+                // Remove all hidden inputs except nonce
+                const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+                if (hiddenInputs) {
+                    hiddenInputs.forEach(function(input) {
+                        if (!input.name.includes('nonce')) {
+                            input.remove();
+                        }
+                    });
+                }
+                
+                // Reload the page to restore everything to original state
+                window.location.reload();
+            }
+        });
+    }
 
     
 

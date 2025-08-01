@@ -27,12 +27,24 @@
 </div>
 
 <script>
-    // Reset form and trigger HTMX
-    document.getElementById('bsf-reset-stages').addEventListener('click', function() {
-        // Reset the form fields (uncheck checkboxes)
-        document.getElementById('bsf-calendar-filter').reset();
-
-        // Optionally, trigger HTMX to reload the posts
-        htmx.trigger('#bsf-calendar-filter', 'change'); // This will simulate a change event after resetting
+    // Clear all filters and reload calendar
+    document.getElementById('bsf-reset-stages').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Reset all form fields
+        const form = document.getElementById('bsf-calendar-filter');
+        if (form) {
+            form.reset();
+            
+            // Clear all checkboxes
+            form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+        
+        // Trigger HTMX to reload calendar with no filters
+        if (typeof htmx !== 'undefined') {
+            htmx.trigger(form, 'change');
+        }
     });
 </script>

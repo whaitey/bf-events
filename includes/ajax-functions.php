@@ -566,3 +566,25 @@ function bsf_load_banner() {
 
 add_action('wp_ajax_bsf_load_banner', 'bsf_load_banner');
 add_action('wp_ajax_nopriv_bsf_load_banner', 'bsf_load_banner');
+
+// Reset banner to original Main Event title
+function bsf_reset_banner() {
+    // Security checks
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'reset_banner')) {
+        status_header(403);
+        die('Invalid nonce');
+    }
+
+    if (!defined('DOING_AJAX') || !DOING_AJAX) {
+        status_header(403);
+        die('Invalid request');
+    }
+
+    // Return HTTP 204 (No Content) - same as when no filters are applied
+    // This tells the frontend to ignore the response and keep the original banner
+    status_header(204);
+    die();
+}
+
+add_action('wp_ajax_bsf_reset_banner', 'bsf_reset_banner');
+add_action('wp_ajax_nopriv_bsf_reset_banner', 'bsf_reset_banner');
