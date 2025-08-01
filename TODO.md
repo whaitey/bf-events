@@ -102,10 +102,10 @@
 - [ ] API endpoints for external integrations
 
 ## 📝 Development Notes
-- Current version: 1.4.0
+- Current version: 1.4.1
 - Last major update: Improved speaker image quality and banner background customization
-- Last bug fix: Fixed speaker permalinks and image quality issues
-- Next planned version: 1.4.1 (Performance optimizations)
+- Last bug fix: Fixed database connection issue caused by thumbnail regeneration
+- Next planned version: 1.4.2 (Performance optimizations)
 - GitHub repository: https://github.com/whaitey/bf-events
 
 ---
