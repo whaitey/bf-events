@@ -12,7 +12,17 @@
             <?php echo carbon_get_post_meta(get_the_ID(),'bsf_last_name'); ?> <?php echo carbon_get_post_meta(get_the_ID(),'bsf_first_name'); ?>
           </h1>
           <div class="bsf-page-banner-description bsf-text">
-            <?php echo carbon_get_post_meta(get_the_ID(),'bsf_title'); ?>
+            <?php 
+              $title = carbon_get_post_meta(get_the_ID(),'bsf_title');
+              $company = carbon_get_post_meta(get_the_ID(),'bsf_company');
+              $company_title = $company;
+              if ($company && $title) {
+                $company_title = $company . ' - ' . $title;
+              } elseif ($title) {
+                $company_title = $title;
+              }
+              echo esc_html($company_title);
+            ?>
           </div>
         </div>
         <?php if(carbon_get_post_meta(get_the_ID(),'bsf_contact_info')): ?>
