@@ -53,21 +53,15 @@ add_filter('template_include', function ($template) {
   return $template;
 });
 
-// Generate clean permalinks for single bsf_event posts at the root (no base)
+// Generate clean permalinks for single bsf_event and bsf_speaker posts at the root (no base)
 add_filter('post_type_link', function ($post_link, $post, $leavename) {
-  if ($post->post_type === 'bsf_event' && $post->post_status === 'publish') {
+  if (in_array($post->post_type, ['bsf_event', 'bsf_speaker'], true) && $post->post_status === 'publish') {
     return home_url('/' . $post->post_name . '/');
   }
   return $post_link;
 }, 10, 3);
 
-// Add rewrite rule to resolve root-level slugs to bsf_event singles
-add_action('init', function () {
-  // Let existing pages/posts/taxonomies take precedence
-  add_rewrite_rule('^([^/]+)/?$', 'index.php?post_type=bsf_event&name=$matches[1]', 'bottom');
-});
-
-// Fallback resolver: if a root-level slug 404s as a page, try resolving as bsf_event
+// Fallback resolver: if a root-level slug 404s as a page, try resolving as bsf_event, then bsf_speaker
 add_filter('request', function ($query_vars) {
   if (empty($query_vars['post_type']) && !empty($query_vars['pagename'])) {
     $slug = $query_vars['pagename'];
@@ -84,6 +78,14 @@ add_filter('request', function ($query_vars) {
         'name'      => $slug,
       );
     }
+    // If there is a bsf_speaker with this slug, route to it
+    $speaker = get_page_by_path($slug, OBJECT, 'bsf_speaker');
+    if ($speaker) {
+      return array(
+        'post_type' => 'bsf_speaker',
+        'name'      => $slug,
+      );
+    }
   }
   return $query_vars;
 });
@@ -93,6 +95,20 @@ add_action('template_redirect', function () {
   if (is_singular('bsf_event')) {
     $request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
     if (preg_match('#/bsf_event/([^/]+)/?$#', $request_uri, $m)) {
+      $target = home_url('/' . $m[1] . '/');
+      if (trailingslashit($target) !== trailingslashit(home_url($request_uri))) {
+        wp_redirect($target, 301);
+        exit;
+      }
+    }
+  }
+});
+
+// 301 redirect old /bsf_speaker/{slug} to /{slug}
+add_action('template_redirect', function () {
+  if (is_singular('bsf_speaker')) {
+    $request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+    if (preg_match('#/bsf_speaker/([^/]+)/?$#', $request_uri, $m)) {
       $target = home_url('/' . $m[1] . '/');
       if (trailingslashit($target) !== trailingslashit(home_url($request_uri))) {
         wp_redirect($target, 301);
