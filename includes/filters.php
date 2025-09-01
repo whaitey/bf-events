@@ -53,6 +53,19 @@ add_filter('template_include', function ($template) {
   return $template;
 });
 
+// Generate clean permalinks for single bsf_event posts at the root (no base)
+add_filter('post_type_link', function ($post_link, $post, $leavename) {
+  if ($post->post_type === 'bsf_event' && $post->post_status === 'publish') {
+    return home_url('/' . $post->post_name . '/');
+  }
+  return $post_link;
+}, 10, 3);
+
+// Add rewrite rule to resolve root-level slugs to bsf_event singles
+add_action('init', function () {
+  // Let existing pages/posts/taxonomies take precedence
+  add_rewrite_rule('^([^/]+)/?$', 'index.php?post_type=bsf_event&name=$matches[1]', 'bottom');
+});
 
 
 add_action( 'pre_get_posts', function( $q )

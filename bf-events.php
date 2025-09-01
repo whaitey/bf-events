@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BF Events
  * Description: Teljes körű eseménykezelő rendszer WordPress plugin
- * Version: 1.4.5
+ * Version: 1.4.6
  * Author: ZeusWeb
  * Plugin URI: https://github.com/whaitey/bf-events
  * GitHub Plugin URI: https://github.com/whaitey/bf-events
@@ -118,6 +118,20 @@ require_once BSF_PLUGIN_DIR . 'includes/helper-functions.php';
 require_once BSF_PLUGIN_DIR . 'includes/ajax-functions.php';
 require_once BSF_PLUGIN_DIR . 'includes/calendar-functions.php';
 require_once BSF_PLUGIN_DIR . 'includes/add-to-calendar.php';
+
+// One-time rewrite flush on version bump to apply new permalink rules
+add_action('init', function () {
+    $current_version = '1.4.6';
+    $stored_version = get_option('bsf_events_version');
+    if ($stored_version !== $current_version) {
+        // Ensure CPTs are registered before flushing
+        if (function_exists('bsf_register_post_types')) {
+            bsf_register_post_types();
+        }
+        flush_rewrite_rules();
+        update_option('bsf_events_version', $current_version);
+    }
+});
 
 // Flush rewrite rules on plugin activation
 register_activation_hook(__FILE__, 'bsf_flush_rewrite_rules');
