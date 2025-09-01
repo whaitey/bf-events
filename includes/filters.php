@@ -67,6 +67,41 @@ add_action('init', function () {
   add_rewrite_rule('^([^/]+)/?$', 'index.php?post_type=bsf_event&name=$matches[1]', 'bottom');
 });
 
+// Fallback resolver: if a root-level slug 404s as a page, try resolving as bsf_event
+add_filter('request', function ($query_vars) {
+  if (empty($query_vars['post_type']) && !empty($query_vars['pagename'])) {
+    $slug = $query_vars['pagename'];
+    // If there is a published page with the same slug, keep default behavior
+    $page = get_page_by_path($slug, OBJECT, 'page');
+    if ($page && get_post_status($page) === 'publish') {
+      return $query_vars;
+    }
+    // If there is a bsf_event with this slug, route to it
+    $event = get_page_by_path($slug, OBJECT, 'bsf_event');
+    if ($event) {
+      return array(
+        'post_type' => 'bsf_event',
+        'name'      => $slug,
+      );
+    }
+  }
+  return $query_vars;
+});
+
+// 301 redirect old /bsf_event/{slug} to /{slug}
+add_action('template_redirect', function () {
+  if (is_singular('bsf_event')) {
+    $request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+    if (preg_match('#/bsf_event/([^/]+)/?$#', $request_uri, $m)) {
+      $target = home_url('/' . $m[1] . '/');
+      if (trailingslashit($target) !== trailingslashit(home_url($request_uri))) {
+        wp_redirect($target, 301);
+        exit;
+      }
+    }
+  }
+});
+
 
 add_action( 'pre_get_posts', function( $q )
 {
