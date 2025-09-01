@@ -61,30 +61,40 @@ add_filter('post_type_link', function ($post_link, $post, $leavename) {
   return $post_link;
 }, 10, 3);
 
-// Fallback resolver: if a root-level slug 404s as a page, try resolving as bsf_event, then bsf_speaker
+// Fallback resolver: if a root-level slug 404s as a page/post, try resolving as bsf_event, then bsf_speaker
 add_filter('request', function ($query_vars) {
-  if (empty($query_vars['post_type']) && !empty($query_vars['pagename'])) {
-    $slug = $query_vars['pagename'];
-    // If there is a published page with the same slug, keep default behavior
-    $page = get_page_by_path($slug, OBJECT, 'page');
-    if ($page && get_post_status($page) === 'publish') {
-      return $query_vars;
+  if (empty($query_vars['post_type'])) {
+    $slug = '';
+    if (!empty($query_vars['pagename'])) {
+      $slug = $query_vars['pagename'];
+    } elseif (!empty($query_vars['name'])) {
+      $slug = $query_vars['name'];
     }
-    // If there is a bsf_event with this slug, route to it
-    $event = get_page_by_path($slug, OBJECT, 'bsf_event');
-    if ($event) {
-      return array(
-        'post_type' => 'bsf_event',
-        'name'      => $slug,
-      );
-    }
-    // If there is a bsf_speaker with this slug, route to it
-    $speaker = get_page_by_path($slug, OBJECT, 'bsf_speaker');
-    if ($speaker) {
-      return array(
-        'post_type' => 'bsf_speaker',
-        'name'      => $slug,
-      );
+
+    if ($slug !== '') {
+      // If there is a published page with the same slug, keep default behavior
+      $page = get_page_by_path($slug, OBJECT, 'page');
+      if ($page && get_post_status($page) === 'publish') {
+        return $query_vars;
+      }
+
+      // If there is a bsf_event with this slug, route to it
+      $event = get_page_by_path($slug, OBJECT, 'bsf_event');
+      if ($event) {
+        return array(
+          'post_type' => 'bsf_event',
+          'name'      => $slug,
+        );
+      }
+
+      // If there is a bsf_speaker with this slug, route to it
+      $speaker = get_page_by_path($slug, OBJECT, 'bsf_speaker');
+      if ($speaker) {
+        return array(
+          'post_type' => 'bsf_speaker',
+          'name'      => $slug,
+        );
+      }
     }
   }
   return $query_vars;
