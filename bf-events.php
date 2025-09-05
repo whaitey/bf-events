@@ -26,7 +26,7 @@ use YahnisElsts\PluginUpdateChecker\v5p6\PucFactory;
 $myUpdateChecker = PucFactory::buildUpdateChecker(
     'https://github.com/whaitey/bf-events',
     __FILE__,
-    'bf-events'
+    plugin_basename(__FILE__)
 );
 // Ensure updates are checked against the correct branch
 if (method_exists($myUpdateChecker, 'setBranch')) {
