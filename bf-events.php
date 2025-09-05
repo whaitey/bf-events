@@ -40,6 +40,15 @@ if (defined('BSF_GITHUB_TOKEN') && BSF_GITHUB_TOKEN) {
     $myUpdateChecker->setAuthentication(getenv('BSF_GITHUB_TOKEN'));
 }
 
+// Optional: enable PUC Debug Bar panel to inspect update status
+if (defined('WP_DEBUG') && WP_DEBUG) {
+    add_action('plugins_loaded', function() use ($myUpdateChecker) {
+        if (method_exists($myUpdateChecker, 'addResultFilter')) {
+            // No-op, ensure object exists early for debug bar
+        }
+    });
+}
+
 // Include Carbon Fields(and other vendors if needed)
 
 define('BSF_PLUGIN_DIR', plugin_dir_path(__FILE__));
