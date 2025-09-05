@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BF Events
  * Description: Teljes körű eseménykezelő rendszer WordPress plugin
- * Version: 1.4.10
+ * Version: 1.4.11
  * Author: ZeusWeb
  * Plugin URI: https://github.com/whaitey/bf-events
  * GitHub Plugin URI: https://github.com/whaitey/bf-events
@@ -28,6 +28,10 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
     __FILE__,
     'bf-events'
 );
+// Ensure updates are checked against the correct branch
+if (method_exists($myUpdateChecker, 'setBranch')) {
+    $myUpdateChecker->setBranch('main-2');
+}
 
 // Include Carbon Fields(and other vendors if needed)
 
@@ -121,7 +125,7 @@ require_once BSF_PLUGIN_DIR . 'includes/add-to-calendar.php';
 
 // One-time rewrite flush on version bump to apply new permalink rules
 add_action('init', function () {
-    $current_version = '1.4.9';
+    $current_version = '1.4.11';
     $stored_version = get_option('bsf_events_version');
     if ($stored_version !== $current_version) {
         // Ensure CPTs are registered before flushing
