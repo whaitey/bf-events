@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BF Events
  * Description: Teljes körű eseménykezelő rendszer WordPress plugin
- * Version: 1.4.11
+ * Version: 1.4.12
  * Author: ZeusWeb
  * Plugin URI: https://github.com/whaitey/bf-events
  * GitHub Plugin URI: https://github.com/whaitey/bf-events
@@ -31,6 +31,13 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 // Ensure updates are checked against the correct branch
 if (method_exists($myUpdateChecker, 'setBranch')) {
     $myUpdateChecker->setBranch('main-2');
+}
+// Optional: authenticate to GitHub to avoid API rate limits or access private repos
+// Add to wp-config.php: define('BSF_GITHUB_TOKEN', 'ghp_xxx');
+if (defined('BSF_GITHUB_TOKEN') && BSF_GITHUB_TOKEN) {
+    $myUpdateChecker->setAuthentication(BSF_GITHUB_TOKEN);
+} elseif (!empty(getenv('BSF_GITHUB_TOKEN'))) {
+    $myUpdateChecker->setAuthentication(getenv('BSF_GITHUB_TOKEN'));
 }
 
 // Include Carbon Fields(and other vendors if needed)
