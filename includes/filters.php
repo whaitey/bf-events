@@ -54,9 +54,39 @@ add_filter('template_include', function ($template) {
 });
 
 // Generate clean permalinks for single bsf_event and bsf_speaker posts at the root (no base)
+// Helper: detect reserved or conflicting slugs that should NOT be placed at root
+function bsf_is_reserved_or_conflicting_slug($slug) {
+  // Core-reserved endpoints and common conflicts
+  $reserved = [
+    'category','tag','author','search','feed','comments','wp-json','wp-admin',
+    'wp-login.php','index.php','robots.txt','favicon.ico','sitemap.xml',
+    // Our taxonomies bases
+    'bsf_stage','bsf_event_tag','bsf_main_event_name','bsf_event_location',
+    // Our CPT bases
+    'bsf_event','bsf_speaker'
+  ];
+
+  if (in_array($slug, $reserved, true)) {
+    return true;
+  }
+
+  // If a published page already uses this slug, avoid root placement
+  $page = get_page_by_path($slug, OBJECT, 'page');
+  if ($page && get_post_status($page) === 'publish') {
+    return true;
+  }
+
+  return false;
+}
+
 add_filter('post_type_link', function ($post_link, $post, $leavename) {
   if (in_array($post->post_type, ['bsf_event', 'bsf_speaker'], true) && $post->post_status === 'publish') {
-    return home_url('/' . $post->post_name . '/');
+    $slug = $post->post_name;
+    // Keep CPT base permalink if slug is reserved/conflicting
+    if (bsf_is_reserved_or_conflicting_slug($slug)) {
+      return $post_link; // falls back to /bsf_event/slug or /bsf_speaker/slug per rewrite
+    }
+    return home_url('/' . $slug . '/');
   }
   return $post_link;
 }, 10, 3);
@@ -75,6 +105,11 @@ add_filter('request', function ($query_vars) {
       // If there is a published page with the same slug, keep default behavior
       $page = get_page_by_path($slug, OBJECT, 'page');
       if ($page && get_post_status($page) === 'publish') {
+        return $query_vars;
+      }
+
+      // Do not resolve reserved/conflicting slugs to our CPTs at root
+      if (bsf_is_reserved_or_conflicting_slug($slug)) {
         return $query_vars;
       }
 
